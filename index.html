@@ -118,7 +118,7 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 .cloud-hint.swap{opacity:0;transform:translateY(4px)}
 .ico{display:inline-block;width:.95em;height:.95em;vertical-align:-.12em;margin-left:.2em}
 
-.cloud-wrap{--cloudMask:none;position:relative;width:min(86vw,400px);aspect-ratio:240/110;margin:3vh auto 0;z-index:2}
+.cloud-wrap{--cloudMask:none;position:relative;width:min(90vw,420px);aspect-ratio:252/124;margin:3vh auto 0;z-index:2}
 .cloud-reveal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
   background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(233,241,249,.9));
   -webkit-mask:var(--cloudMask) center/100% 100% no-repeat;mask:var(--cloudMask) center/100% 100% no-repeat}
@@ -126,6 +126,9 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 .cloud-reveal .date{font-weight:600;color:var(--sage);font-size:clamp(1.35rem,6.6vw,1.95rem);margin-top:4px;line-height:1.15}
 .js .cloud-reveal .dlabel,.js .cloud-reveal .date{transition:transform 1.2s var(--ease-out),letter-spacing 1.2s var(--ease-out)}
 .js .cloud-wrap:not(.revealed) .date{transform:scale(.96)}
+/* the pale plate under the cloud stays hidden until the first scratch, so the fluffy edge isn't backed by a hard outline */
+.js .cloud-wrap:not(.touched) .cloud-reveal{opacity:0}
+.cloud-reveal{transition:opacity .35s var(--ease-soft)}
 .cloud-wrap.revealed .date{transform:none}
 
 #cloudCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;
@@ -317,7 +320,7 @@ $('replayBtn').addEventListener('click', () => {
 /* ---------- 2. scratch the cloud ---------- */
 const CLOUD_D = 'M70 150 C40 150 25 128 40 110 C30 92 46 70 70 76 C80 52 120 46 138 70 ' +
                 'C150 50 190 50 200 74 C230 66 254 88 244 112 C268 116 270 150 240 152 C240 152 90 152 70 150 Z';
-const VB = {x:28, y:48, w:240, h:110};
+const VB = {x:22, y:42, w:252, h:124};   // cloud bounds plus room for the fluff
 const cloudPath = new Path2D(CLOUD_D);
 const wrap = $('cloudWrap'), canvas = $('cloudCanvas'), ctx = canvas.getContext('2d');
 wrap.style.setProperty('--cloudMask', 'url("data:image/svg+xml,' + encodeURIComponent(
@@ -327,39 +330,80 @@ wrap.style.setProperty('--cloudMask', 'url("data:image/svg+xml,' + encodeURIComp
 const cov = document.createElement('canvas'), cctx = cov.getContext('2d', {willReadFrequently:true});
 let W = 0, H = 0, dpr = 1, covTotal = 1, ready = false, cleared = false, drawing = false, strokes = 0, lx = null, ly = null, checkQueued = false;
 
-const rng = (seed => () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296)(7);   // deterministic grain
+// path-unit lookup of the silhouette, so puffs can be placed inside it and along its edge
+const sil = (() => {
+  const c = document.createElement('canvas'); c.width = 300; c.height = 200;
+  const x = c.getContext('2d', {willReadFrequently:true}); x.fillStyle = '#000'; x.fill(cloudPath);
+  const d = x.getImageData(0,0,300,200).data;
+  const inside = (px, py) => px >= 0 && py >= 0 && px < 300 && py < 200 && d[((py|0)*300 + (px|0))*4 + 3] > 128;
+  const edge = [];
+  for (let py = 46; py < 160; py += 1) for (let px = 26; px < 272; px += 1)
+    if (inside(px,py) && (!inside(px-2,py) || !inside(px+2,py) || !inside(px,py-2) || !inside(px,py+2))) edge.push([px,py]);
+  return {inside, edge};
+})();
 
 function paintCloud(){
-  const s = W / VB.w;
+  const s = W / VB.w, K = dpr * s;
   canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
-  ctx.setTransform(1,0,0,1,0,0); ctx.globalCompositeOperation = 'source-over'; ctx.shadowBlur = 0;
-  ctx.save(); ctx.scale(dpr*s, dpr*s); ctx.translate(-VB.x, -VB.y);
-  const g = ctx.createLinearGradient(0, VB.y, 0, VB.y + VB.h);
-  g.addColorStop(0, '#ffffff'); g.addColorStop(.55, '#edf3f9'); g.addColorStop(1, '#c9d8e9');
-  ctx.fillStyle = g; ctx.fill(cloudPath); ctx.clip(cloudPath);
-  for (let i = 0; i < 11; i++){                                   // soft billows
-    const cx = VB.x + rng()*VB.w, cy = VB.y + rng()*VB.h*.55, r = 16 + rng()*22;
-    const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-    rg.addColorStop(0, 'rgba(255,255,255,.9)'); rg.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = rg; ctx.fillRect(cx - r, cy - r, r*2, r*2);
-  }
-  for (let i = 0; i < 6; i++){                                    // cool underside
-    const cx = VB.x + rng()*VB.w, cy = VB.y + VB.h*(.7 + rng()*.3), r = 22 + rng()*20;
-    const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-    rg.addColorStop(0, 'rgba(120,150,190,.28)'); rg.addColorStop(1, 'rgba(120,150,190,0)');
-    ctx.fillStyle = rg; ctx.fillRect(cx - r, cy - r, r*2, r*2);
-  }
-  ctx.lineJoin = 'round';
-  ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.lineWidth = 3.2; ctx.stroke(cloudPath);   // bright rim
-  ctx.strokeStyle = 'rgba(140,168,200,.35)'; ctx.lineWidth = 1; ctx.stroke(cloudPath);
+  ctx.setTransform(1,0,0,1,0,0); ctx.globalCompositeOperation = 'source-over'; ctx.shadowBlur = 0; ctx.clearRect(0,0,canvas.width,canvas.height);
+  const R = (() => { let t = 11; return () => (t = (t * 1664525 + 1013904223) >>> 0) / 4294967296; })();   // same cloud every time
+
+  const puff = (x, y, r, rgb, a) => {                              // one soft ball of cotton
+    const g = ctx.createRadialGradient(x, y, r*.1, x, y, r);
+    g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(.5, `rgba(${rgb},${a*.55})`); g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+  };
+  const spot = (ymin, ymax) => {                                   // random point inside the silhouette
+    for (let i = 0; i < 60; i++){
+      const x = VB.x + 6 + R()*(VB.w - 12), y = ymin + R()*(ymax - ymin);
+      if (sil.inside(x, y)) return [x, y];
+    }
+    return [138, 110];
+  };
+  const top = 54, bot = 152, span = bot - top;
+
+  ctx.save(); ctx.scale(K, K); ctx.translate(-VB.x, -VB.y);
+  // soft-edged body: only the blurred shadow of the silhouette is drawn (the shape itself sits off-canvas),
+  // so there is no hard outline anywhere, just an opaque core that fades out through the puffs
+  const OFF = 4000;
+  ctx.save(); ctx.translate(-OFF, 0);
+  ctx.shadowColor = '#eaf1f8'; ctx.shadowOffsetX = OFF * K; ctx.shadowBlur = 16 * dpr; ctx.fillStyle = '#000';
+  ctx.fill(cloudPath); ctx.fill(cloudPath); ctx.restore();
+  ctx.shadowColor = 'transparent'; ctx.shadowOffsetX = 0; ctx.shadowBlur = 0;
+  for (let i = 0; i < 60; i++){ const [x,y] = spot(top + span*.45, bot); puff(x, y + 3, 16 + R()*14, '146,172,208', .42); }   // cool underside
+  for (let i = 0; i < 170; i++){ const [x,y] = spot(top, bot - 6); puff(x, y, 9 + R()*12, '240,246,252', .8); }                // body
+  for (let i = 0; i < 46; i++){ const [x,y] = spot(top + 4, bot - 10); puff(x, y, 5 + R()*6, '130,156,192', .13); }            // creases between billows
+  for (let i = 0; i < 110; i++){ const [x,y] = spot(top, top + span*.62); puff(x, y - 2, 6 + R()*9, '255,255,255', .95); }     // sunlit tops
   ctx.restore();
 
-  ctx.save();                                                     // grain, so it reads as frost
-  ctx.scale(dpr*s, dpr*s); ctx.translate(-VB.x, -VB.y); ctx.clip(cloudPath);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);                         // back to CSS px; the clip stays
-  for (let i = 0; i < 300; i++){
-    ctx.fillStyle = i % 3 ? 'rgba(255,255,255,.7)' : 'rgba(110,135,170,.16)';
-    ctx.beginPath(); ctx.arc(rng()*W, rng()*H, .4 + rng()*.8, 0, 7); ctx.fill();
+  // feather the whole silhouette: fuzzy, not cut out
+  const m = document.createElement('canvas'); m.width = canvas.width; m.height = canvas.height;
+  const mx = m.getContext('2d');
+  mx.scale(K, K); mx.translate(-VB.x - OFF, -VB.y);
+  mx.shadowColor = '#fff'; mx.shadowOffsetX = OFF * K; mx.shadowBlur = 10 * dpr;      // only the blurred shadow lands on the canvas
+  mx.fillStyle = mx.strokeStyle = '#000'; mx.lineWidth = 9; mx.lineJoin = 'round';
+  for (let i = 0; i < 2; i++){ mx.fill(cloudPath); mx.stroke(cloudPath); }
+  ctx.globalCompositeOperation = 'destination-in'; ctx.setTransform(1,0,0,1,0,0); ctx.drawImage(m, 0, 0);
+  ctx.globalCompositeOperation = 'source-over';
+
+  // cotton wisps along the edge
+  ctx.save(); ctx.scale(K, K); ctx.translate(-VB.x, -VB.y);
+  const e = sil.edge, cx0 = 150, cy0 = 105;
+  for (let i = 0; i < 190; i++){
+    const [x,y] = e[(R()*e.length)|0], dx = x - cx0, dy = (y - cy0) * 1.6, L = Math.hypot(dx, dy) || 1, out = R()*4.5;
+    const px = x + dx/L*out, py = y + dy/L*out;
+    puff(px, py, 2.6 + R()*4.6, y > top + span*.7 ? '214,226,240' : '255,255,255', .9);
+  }
+  for (let i = 0; i < 40; i++){                                   // a few larger, fainter fluffs
+    const [x,y] = e[(R()*e.length)|0]; puff(x + (R()-.5)*5, y + (R()-.5)*5 - 1, 7 + R()*5, '255,255,255', .38);
+  }
+  ctx.restore();
+
+  ctx.save(); ctx.scale(K, K); ctx.translate(-VB.x, -VB.y);       // fine fibres of texture, inside only
+  for (let i = 0; i < 110; i++){
+    const [x,y] = spot(top, bot);
+    ctx.fillStyle = i % 3 ? 'rgba(255,255,255,.4)' : 'rgba(120,145,180,.09)';
+    ctx.beginPath(); ctx.arc(x, y, .25 + R()*.55, 0, 7); ctx.fill();
   }
   ctx.restore();
 
