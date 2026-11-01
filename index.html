@@ -94,6 +94,7 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
    1. VIDEO
    ========================================================= */
 #vid-screen{background:var(--sky)}
+/* after the video ends, the scratch layer fades in over its last frame: same page, nothing to scroll to */
 /* fills the screen exactly like the intro and scratch backgrounds, so the three hand-offs line up */
 #introVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:var(--sky)}
 .v-replay{position:absolute;top:calc(14px + var(--safe-top));right:14px;z-index:4;width:44px;height:44px;border-radius:50%;
@@ -109,8 +110,13 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 /* =========================================================
    2. SCRATCH — the video's last frame, a cloud to scratch away
    ========================================================= */
-#scratch-screen{background:var(--sky) url(assets/scene.jpg) center/cover no-repeat;
-  display:flex;flex-direction:column;align-items:center}
+.scratch-layer{position:absolute;inset:0;z-index:3;overflow:hidden;
+  background:var(--sky) url(assets/scene.jpg) center/cover no-repeat;
+  display:flex;flex-direction:column;align-items:center;
+  opacity:0;pointer-events:none;transition:opacity 1.2s var(--ease-soft)}
+.scratch-layer.ready{opacity:1;pointer-events:auto}
+/* replay sits bottom-left so it never competes with the clouds or the birds */
+#replayBtn{top:auto;right:auto;left:14px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:5}
 .scratch-prompt,.cloud-hint{font-style:italic;font-weight:600;color:var(--ink);text-align:center;z-index:3;
   padding:0 24px;text-wrap:balance;text-shadow:0 0 14px rgba(236,243,250,.9)}
 .scratch-prompt{margin-top:max(6vh,calc(var(--safe-top) + 24px));font-size:1.3rem}
@@ -192,7 +198,7 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
   .js .final-art:not(.in){transform:none;filter:none}
 }
 </style>
-<noscript><style>#intro-screen,#vid-screen,#scratch-screen{display:none}.js .final-art{transform:none}html.is-locked,html.is-locked body{overflow:auto;height:auto}</style></noscript>
+<noscript><style>#intro-screen,#vid-screen{display:none}.js .final-art{transform:none}html.is-locked,html.is-locked body{overflow:auto;height:auto}</style></noscript>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -223,33 +229,32 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
       <source src="assets/opening-video.mp4" type="video/mp4">
       <source src="assets/opening-video.webm" type="video/webm">
     </video>
+    <!-- 2. SCRATCH: fades in over the video's last frame -->
+    <div class="scratch-layer" id="scratch-layer" aria-hidden="true" inert>
+      <canvas class="mini m1 sa" data-shape="a" aria-hidden="true"></canvas>
+      <canvas class="mini m2 sb" data-shape="b" aria-hidden="true"></canvas>
+      <canvas class="mini m3 sc" data-shape="c" aria-hidden="true"></canvas>
+      <canvas class="mini m4 sa" data-shape="a" aria-hidden="true"></canvas>
+      <canvas class="mini m5 sb" data-shape="b" aria-hidden="true"></canvas>
+      <p class="scratch-prompt">Scratch the cloud to reveal the date
+        <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.8 5.5 4.5 9.2 10 10-5.5.8-9.2 4.5-10 10-.8-5.5-4.5-9.2-10-10 5.5-.8 9.2-4.5 10-10z"/></svg>
+      </p>
+      <div class="cloud-wrap" id="cloudWrap">
+        <div class="cloud-reveal">
+          <div class="dlabel">Save the Date</div>
+          <div class="date">March 5, 2027</div>
+        </div>
+        <canvas id="cloudCanvas" tabindex="0" role="button"
+                aria-label="Scratch the cloud to reveal the date. Drag to scratch, or press Enter to reveal."></canvas>
+      </div>
+      <p class="cloud-hint" id="cloudHint" aria-live="polite">Scratch with your finger</p>
+      <div class="petals" aria-hidden="true"></div>
+    </div>
     <button class="v-replay" id="replayBtn" type="button" aria-label="Replay the animation">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
       </svg>
     </button>
-  </section>
-
-  <!-- 2. SCRATCH -->
-  <section class="screen" id="scratch-screen">
-    <canvas class="mini m1 sa" data-shape="a" aria-hidden="true"></canvas>
-    <canvas class="mini m2 sb" data-shape="b" aria-hidden="true"></canvas>
-    <canvas class="mini m3 sc" data-shape="c" aria-hidden="true"></canvas>
-    <canvas class="mini m4 sa" data-shape="a" aria-hidden="true"></canvas>
-    <canvas class="mini m5 sb" data-shape="b" aria-hidden="true"></canvas>
-    <p class="scratch-prompt">Scratch the cloud to reveal the date
-      <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.8 5.5 4.5 9.2 10 10-5.5.8-9.2 4.5-10 10-.8-5.5-4.5-9.2-10-10 5.5-.8 9.2-4.5 10-10z"/></svg>
-    </p>
-    <div class="cloud-wrap" id="cloudWrap">
-      <div class="cloud-reveal">
-        <div class="dlabel">Save the Date</div>
-        <div class="date">March 5, 2027</div>
-      </div>
-      <canvas id="cloudCanvas" tabindex="0" role="button"
-              aria-label="Scratch the cloud to reveal the date. Drag to scratch, or press Enter to reveal."></canvas>
-    </div>
-    <p class="cloud-hint" id="cloudHint" aria-live="polite">Scratch with your finger</p>
-    <div class="petals" aria-hidden="true"></div>
   </section>
 
   <!-- 3. FINAL -->
@@ -273,7 +278,7 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 'use strict';
 const $ = id => document.getElementById(id);
 const root = document.documentElement;
-const stage = $('stage'), intro = $('intro-screen'), scratchScreen = $('scratch-screen'),
+const stage = $('stage'), intro = $('intro-screen'), scratchScreen = $('vid-screen'), scratchLayer = $('scratch-layer'),
       finalScreen = $('final-screen'), finalArt = $('finalArt'), vid = $('introVideo');
 const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -306,7 +311,7 @@ function kickVideo(){
   if (videoKicked) return; videoKicked = true;
   try { vid.currentTime = 0; } catch(_){}
   const p = vid.play();
-  if (p && p.catch) p.catch(() => { setTimeout(() => glideTo(scratchScreen, 1200), 900); }); // autoplay blocked: don't dead-end
+  if (p && p.catch) p.catch(() => { setTimeout(showScratch, 900); }); // autoplay blocked: don't dead-end
 }
 function finishIntro(){
   if (started) return; started = true;
@@ -352,19 +357,25 @@ intro.addEventListener('keydown', e => {
 });
 
 /* ---------- 1. video -> scratch ---------- */
-let safetyTimer = 0;
-const scratchReached = () => window.scrollY >= scratchScreen.offsetTop - innerHeight * .5;
+let safetyTimer = 0, scratchShown = false;
+function showScratch(){
+  if (scratchShown) return; scratchShown = true;
+  scratchLayer.classList.add('ready'); scratchLayer.removeAttribute('aria-hidden'); scratchLayer.inert = false;
+}
+function hideScratch(){
+  scratchShown = false;
+  scratchLayer.classList.remove('ready'); scratchLayer.setAttribute('aria-hidden','true'); scratchLayer.inert = true;
+}
 vid.addEventListener('ended', () => {
   try { vid.pause(); vid.currentTime = Math.max(0, vid.duration - .05); } catch(_){}
-  setTimeout(() => { if (!scratchReached()) glideTo(scratchScreen, 1450); }, 180);   // let the last frame breathe (and never yank someone back who already scrolled on)
+  setTimeout(showScratch, 180);                         // let the last frame breathe, then the clouds drift in
 });
 vid.addEventListener('play', () => {
   clearTimeout(safetyTimer);
-  safetyTimer = setTimeout(() => { if (started && !scratchReached()) glideTo(scratchScreen, 1450); },
-                           ((vid.duration || 7) * 1000) + 500);
+  safetyTimer = setTimeout(() => { if (started) showScratch(); }, ((vid.duration || 7) * 1000) + 500);
 });
 $('replayBtn').addEventListener('click', () => {
-  vid.currentTime = 0; const p = vid.play(); if (p && p.catch) p.catch(() => {});
+  hideScratch(); vid.currentTime = 0; const p = vid.play(); if (p && p.catch) p.catch(() => setTimeout(showScratch, 400));
 });
 
 /* ---------- 2. scratch the cloud ---------- */
