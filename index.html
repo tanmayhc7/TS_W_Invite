@@ -121,7 +121,7 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 .cloud-wrap{--cloudMask:none;position:relative;width:min(90vw,420px);aspect-ratio:252/124;margin:3vh auto 0;z-index:2}
 .cloud-reveal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
   background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(233,241,249,.9));
-  -webkit-mask:var(--cloudMask) center/100% 100% no-repeat;mask:var(--cloudMask) center/100% 100% no-repeat}
+  -webkit-mask:var(--plateMask,var(--cloudMask)) center/100% 100% no-repeat;mask:var(--plateMask,var(--cloudMask)) center/100% 100% no-repeat}
 .cloud-reveal .dlabel{font-weight:600;letter-spacing:.24em;text-indent:.24em;text-transform:uppercase;font-size:.78rem;color:var(--sage-deep)}
 .cloud-reveal .date{font-weight:600;color:var(--sage);font-size:clamp(1.35rem,6.6vw,1.95rem);margin-top:4px;line-height:1.15}
 .js .cloud-reveal .dlabel,.js .cloud-reveal .date{transition:transform 1.2s var(--ease-out),letter-spacing 1.2s var(--ease-out)}
@@ -155,6 +155,16 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 .m5{left:2%;top:18.5vh;width:7.5%;--dur:20s}
 @keyframes drift{from{transform:translateX(-4px)}to{transform:translateX(5px)}}
 
+/* plumeria petals drifting down from the tree on the left, ambient detail on top of the painted scene */
+.petals{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.petal{position:absolute;left:var(--x);top:var(--y);width:var(--s);opacity:0;will-change:transform,opacity;
+  animation:petal var(--d) linear var(--dl) infinite}
+.petal svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 1px 1.5px rgba(60,70,40,.28));
+  animation:sway var(--sw) ease-in-out infinite alternate}
+@keyframes petal{0%{transform:translate(0,0) rotate(var(--r0));opacity:0}8%{opacity:.92}82%{opacity:.85}
+  100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r1));opacity:0}}
+@keyframes sway{from{transform:translateX(-9px) rotateY(0deg)}to{transform:translateX(9px) rotateY(75deg)}}
+
 /* =========================================================
    3. FINAL — the invitation card, full bleed
    ========================================================= */
@@ -175,6 +185,9 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 <noscript><style>#intro-screen,#vid-screen,#scratch-screen{display:none}.js .final-art{transform:none}html.is-locked,html.is-locked body{overflow:auto;height:auto}</style></noscript>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="petalG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffefa"/><stop offset=".62" stop-color="#fbf5e3"/><stop offset="1" stop-color="#f4c862"/></linearGradient>
+</defs></svg>
 <div class="stage" id="stage">
 
   <!-- 0. INTRO — swipe right to begin -->
@@ -226,12 +239,14 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
               aria-label="Scratch the cloud to reveal the date. Drag to scratch, or press Enter to reveal."></canvas>
     </div>
     <p class="cloud-hint" id="cloudHint" aria-live="polite">Scratch with your finger</p>
+    <div class="petals" aria-hidden="true"></div>
   </section>
 
   <!-- 3. FINAL -->
   <section class="screen" id="final-screen" role="img"
            aria-label="Save the date for the wedding of Shalome and Tanmay. March 5, 2027, Goa. Formal invitation to follow.">
     <div class="final-art" id="finalArt"></div>
+    <div class="petals" aria-hidden="true"></div>
   </section>
 
 </div>
@@ -342,6 +357,10 @@ const cloudPath = new Path2D(CLOUD_D);
 const wrap = $('cloudWrap'), canvas = $('cloudCanvas'), ctx = canvas.getContext('2d');
 wrap.style.setProperty('--cloudMask', 'url("data:image/svg+xml,' + encodeURIComponent(
   `<svg xmlns='http://www.w3.org/2000/svg' viewBox='${VB.x} ${VB.y} ${VB.w} ${VB.h}' preserveAspectRatio='none'><path d='${CLOUD_D}' fill='white'/></svg>`) + '")');
+
+// the pale plate under the date gets a feathered edge so it sits in the sky like the cotton cloud, not like a cut-out
+wrap.style.setProperty('--plateMask', 'url("data:image/svg+xml,' + encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='${VB.x} ${VB.y} ${VB.w} ${VB.h}' preserveAspectRatio='none'><filter id='b' x='-20%' y='-30%' width='140%' height='160%'><feGaussianBlur stdDeviation='3.2'/></filter><path d='${CLOUD_D}' fill='white' stroke='white' stroke-width='5' stroke-linejoin='round' filter='url(#b)'/></svg>`) + '")');
 
 // low-res twin of the cloud: cheap, accurate "how much is scratched" measurement
 const cov = document.createElement('canvas'), cctx = cov.getContext('2d', {willReadFrequently:true});
@@ -557,6 +576,28 @@ const minis = [...document.querySelectorAll('.mini')];
 const paintMinis = () => minis.forEach((c,i) => paintMini(c, 31 + i*17));
 new ResizeObserver(paintMinis).observe(scratchScreen);
 paintMinis();
+
+/* ---------- petals ---------- */
+document.querySelectorAll('.petals').forEach((box, bi) => {
+  const w = box.parentElement.clientWidth || 390, h = innerHeight || 800;
+  let t = 5 + bi*13; const R = () => (t = (t*1664525 + 1013904223) >>> 0) / 4294967296;
+  for (let i = 0; i < 7; i++){
+    const el = document.createElement('span'); el.className = 'petal';
+    const st = el.style, size = 11 + R()*7;
+    st.setProperty('--x', (2 + R()*18).toFixed(1) + '%');
+    st.setProperty('--y', (27 + R()*9).toFixed(1) + '%');
+    st.setProperty('--s', size.toFixed(1) + 'px');
+    st.setProperty('--dx', Math.round(w*(.2 + R()*.42)) + 'px');
+    st.setProperty('--dy', Math.round(h*(.2 + R()*.26)) + 'px');
+    st.setProperty('--r0', Math.round(R()*90 - 45) + 'deg');
+    st.setProperty('--r1', Math.round(180 + R()*260) + 'deg');
+    st.setProperty('--d', (15 + R()*9).toFixed(1) + 's');
+    st.setProperty('--dl', (-R()*22).toFixed(1) + 's');
+    st.setProperty('--sw', (2.4 + R()*2).toFixed(1) + 's');
+    el.innerHTML = '<svg viewBox="0 0 20 28" aria-hidden="true"><path d="M10 1C17.5 8 18.5 20 10 27 1.5 20 2.5 8 10 1Z" fill="url(#petalG)" stroke="rgba(214,170,70,.35)" stroke-width=".6"/></svg>';
+    box.appendChild(el);
+  }
+});
 
 /* ---------- 3. final card settles in once, when it arrives ---------- */
 new IntersectionObserver((es, io) => {
