@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="copyright" content="© 2026 Shalome &amp; Tanmay. All rights reserved.">
+<title>Save the Date — Shalome &amp; Tanmay</title>
+<meta name="description" content="Save the date for the wedding of Shalome &amp; Tanmay — March 5, 2027, Goa. Formal invitation to follow.">
+<meta name="theme-color" content="#d2dde9">
+
+<!-- Link preview (WhatsApp / iMessage / Slack). Update the host below if the Pages URL differs. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Save the Date — Shalome &amp; Tanmay">
+<meta property="og:description" content="March 5, 2027 · Goa. Formal invitation to follow.">
+<meta property="og:image" content="https://tanmayhc7.github.io/ts_saveTheDate/assets/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="628">
+<meta property="og:url" content="https://tanmayhc7.github.io/ts_saveTheDate/shalome-tanmay/">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Save the Date">
+<link rel="icon" href="../assets/icon-180.png">
+<link rel="apple-touch-icon" href="../assets/icon-180.png">
+
+<link rel="preload" as="image" href="../assets/intro.jpg" fetchpriority="high">
+<link rel="preload" as="font" type="font/woff2" href="../assets/fonts/cormorant-600-normal.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../assets/fonts/cormorant-600-italic.woff2" crossorigin>
+<script>document.documentElement.classList.add('js','is-locked')</script>
+
+<style>
+/* Cormorant, self-hosted (no third-party request, works offline) */
+@font-face{font-family:'Cormorant';font-style:normal;font-weight:500;font-display:swap;src:url(../assets/fonts/cormorant-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Cormorant';font-style:normal;font-weight:600;font-display:swap;src:url(../assets/fonts/cormorant-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Cormorant';font-style:italic;font-weight:500;font-display:swap;src:url(../assets/fonts/cormorant-500-italic.woff2) format('woff2')}
+@font-face{font-family:'Cormorant';font-style:italic;font-weight:600;font-display:swap;src:url(../assets/fonts/cormorant-600-italic.woff2) format('woff2')}
+
+:root{
+  /* palette lifted from the artwork */
+  --sky:#d2dde9;
+  --sky-soft:#e6edf4;
+  --paper:#f7f1e3;
+  --sage:#5f6f3f;
+  --sage-deep:#4c5a31;
+  --ink:#33422a;
+  --serif:'Cormorant','Cormorant Garamond',Georgia,serif;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-soft:cubic-bezier(.4,0,.2,1);
+  --safe-top:env(safe-area-inset-top,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--sky-soft);scrollbar-width:thin;scrollbar-color:rgba(76,90,49,.35) transparent}
+html,body{overflow-x:hidden}
+html.is-locked,html.is-locked body{overflow:hidden;height:100%;overscroll-behavior:none}
+body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  background:linear-gradient(180deg,#dde7f1 0%,#e9eef0 55%,var(--paper) 100%) fixed;overscroll-behavior-y:none}
+::selection{background:rgba(95,111,63,.28);color:inherit}
+:focus-visible{outline:2px solid var(--sage-deep);outline-offset:3px;border-radius:4px}
+
+/* the invitation lives in a phone-width column; on wide screens it floats on soft paper */
+.stage{max-width:520px;margin:0 auto;position:relative;background:var(--sky);
+  box-shadow:0 0 0 1px rgba(76,90,49,.10),0 40px 90px -30px rgba(51,66,42,.45)}
+.screen{min-height:100vh;min-height:100dvh;position:relative;overflow:hidden;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+
+/* =========================================================
+   0. INTRO — first frame of the video, "swipe right to begin"
+   ========================================================= */
+#intro-screen{background:var(--sky) url(../assets/intro.jpg) center/cover no-repeat;
+  position:fixed;inset:0;max-width:520px;margin:0 auto;z-index:50;
+  touch-action:none;cursor:grab;overflow:hidden;will-change:transform,opacity}
+#intro-screen:active{cursor:grabbing}
+#intro-screen:focus-visible{outline-offset:-8px}
+#intro-screen.sliding{transition:transform .7s var(--ease-out),opacity .7s var(--ease-soft)}
+#intro-screen.snapback{transition:transform .45s var(--ease-out),opacity .45s var(--ease-out)}
+.intro-inner{position:absolute;top:calc(14vh + var(--safe-top));left:0;right:0;text-align:center;padding:0 24px}
+.std{font-weight:600;letter-spacing:.22em;text-indent:.22em;font-size:clamp(1.55rem,7.4vw,2.4rem);
+  color:var(--sage-deep);line-height:1.2;text-wrap:balance}
+.swipe-line{font-style:italic;font-weight:600;color:var(--ink);font-size:1.4rem;margin-top:.5em}
+.arrow-right{margin:1.1em auto 0;width:112px;height:20px;animation:arrowSlide 2.2s var(--ease-soft) infinite}
+.arrow-right svg{width:100%;height:100%;display:block;overflow:visible}
+@keyframes arrowSlide{0%,100%{transform:translateX(-7px);opacity:.45}50%{transform:translateX(7px);opacity:1}}
+
+/* the one authored entrance: type settles in out of the sky */
+.js .intro-inner>*{opacity:0;filter:blur(6px);transform:translateY(10px);
+  animation:settle 1.1s var(--ease-out) forwards}
+.js .intro-inner>.std{animation-delay:.15s}
+.js .intro-inner>.swipe-line{animation-delay:.45s}
+.js .intro-inner>.arrow-right{animation:settle 1.1s var(--ease-out) .75s forwards,arrowSlide 2.2s var(--ease-soft) 1.9s infinite}
+@keyframes settle{to{opacity:1;filter:blur(0);transform:none}}
+
+/* =========================================================
+   1. VIDEO
+   ========================================================= */
+#vid-screen{background:var(--sky)}
+/* after the video ends, the scratch layer fades in over its last frame: same page, nothing to scroll to */
+/* fills the screen exactly like the intro and scratch backgrounds, so the three hand-offs line up */
+#introVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:var(--sky)}
+.v-replay{position:absolute;top:calc(14px + var(--safe-top));right:14px;z-index:4;width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:1px solid rgba(95,111,63,.22);color:var(--sage-deep);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background-color .25s var(--ease-soft),transform .25s var(--ease-out),box-shadow .25s var(--ease-soft)}
+.v-replay svg{width:20px;height:20px;transition:transform .5s var(--ease-out)}
+.v-replay:hover{background:rgba(255,255,255,.92);box-shadow:0 6px 18px -6px rgba(51,66,42,.4)}
+.v-replay:hover svg{transform:rotate(-120deg)}
+.v-replay:active{transform:scale(.94)}
+
+/* =========================================================
+   2. SCRATCH — the video's last frame, a cloud to scratch away
+   ========================================================= */
+.scratch-layer{position:absolute;inset:0;z-index:3;overflow:hidden;
+  background:var(--sky) url(../assets/scene.jpg) center/cover no-repeat;
+  display:flex;flex-direction:column;align-items:center;
+  opacity:0;pointer-events:none;transition:opacity 1.2s var(--ease-soft)}
+.scratch-layer.ready{opacity:1;pointer-events:auto}
+/* replay sits bottom-left so it never competes with the clouds or the birds */
+#replayBtn{top:auto;right:auto;left:14px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:5}
+.scratch-prompt,.cloud-hint{font-style:italic;font-weight:600;color:var(--ink);text-align:center;z-index:3;
+  padding:0 24px;text-wrap:balance;text-shadow:0 0 14px rgba(236,243,250,.9)}
+.scratch-prompt{margin-top:max(6vh,calc(var(--safe-top) + 24px));font-size:1.3rem}
+.cloud-hint{margin-top:3vh;font-size:1.1rem;min-height:1.5em;transition:opacity .45s var(--ease-soft),transform .45s var(--ease-out)}
+.cloud-hint.swap{opacity:0;transform:translateY(4px)}
+.ico{display:inline-block;width:.95em;height:.95em;vertical-align:-.12em;margin-left:.2em}
+
+.cloud-wrap{--cloudMask:none;position:relative;width:min(90vw,420px);aspect-ratio:252/124;margin:3vh auto 0;z-index:2}
+.cloud-reveal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(233,241,249,.9));
+  -webkit-mask:var(--plateMask,var(--cloudMask)) center/100% 100% no-repeat;mask:var(--plateMask,var(--cloudMask)) center/100% 100% no-repeat}
+.cloud-reveal .dlabel{font-weight:600;letter-spacing:.24em;text-indent:.24em;text-transform:uppercase;font-size:.78rem;color:var(--sage-deep)}
+.cloud-reveal .date{font-weight:600;color:var(--sage);font-size:clamp(1.35rem,6.6vw,1.95rem);margin-top:4px;line-height:1.15}
+.js .cloud-reveal .dlabel,.js .cloud-reveal .date{transition:transform 1.2s var(--ease-out),letter-spacing 1.2s var(--ease-out)}
+.js .cloud-wrap:not(.revealed) .date{transform:scale(.96)}
+/* the pale plate under the cloud stays hidden until the first scratch, so the fluffy edge isn't backed by a hard outline */
+.js .cloud-wrap:not(.touched) .cloud-reveal{opacity:0}
+.cloud-reveal{transition:opacity .35s var(--ease-soft)}
+.cloud-wrap.revealed .date{transform:none}
+
+#cloudCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;
+  filter:drop-shadow(0 10px 14px rgba(70,96,130,.28));
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='14' cy='14' r='11' fill='rgba(255,255,255,.25)' stroke='%234c5a31' stroke-width='1.5'/%3E%3C/svg%3E") 14 14,crosshair}
+#cloudCanvas:focus-visible{outline-offset:6px;border-radius:24px}
+/* a slow sheen over the cloud until the first touch — says "this is touchable" */
+.cloud-wrap::after{content:'';position:absolute;inset:0;pointer-events:none;
+  -webkit-mask:var(--cloudMask) center/100% 100% no-repeat;mask:var(--cloudMask) center/100% 100% no-repeat;
+  background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.85) 50%,transparent 62%) 130% 0/260% 100% no-repeat;
+  animation:sheen 3.6s var(--ease-soft) 1.2s infinite;transition:opacity .4s}
+.cloud-wrap.touched::after,.cloud-wrap.revealed::after{opacity:0;animation:none}
+@keyframes sheen{0%{background-position:130% 0}60%,100%{background-position:-30% 0}}
+
+/* small decorative clouds around the main one; they stay after the main cloud is scratched away.
+   Placed clear of the painted birds (upper right). */
+.mini{position:absolute;pointer-events:none;z-index:1;opacity:.96;
+  filter:drop-shadow(0 4px 5px rgba(70,96,130,.2));animation:drift var(--dur,12s) ease-in-out infinite alternate}
+.mini.sa{aspect-ratio:110/56}.mini.sb{aspect-ratio:94/50}.mini.sc{aspect-ratio:104/44}
+.m1{left:1%;top:4.6vh;width:10.5%;--dur:13s}
+.m2{right:1%;top:6.4vh;width:9.5%;--dur:16s}
+.m3{right:-1%;top:25.5vh;width:15%;--dur:18s}
+.m4{left:-1%;top:27.2vh;width:11%;--dur:14s}
+.m5{left:2%;top:18.5vh;width:7.5%;--dur:20s}
+@keyframes drift{from{transform:translateX(-4px)}to{transform:translateX(5px)}}
+
+/* plumeria petals drifting down from the tree on the left, ambient detail on top of the painted scene */
+.petals{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.petal{position:absolute;left:var(--x);top:var(--y);width:var(--s);opacity:0;will-change:transform,opacity;
+  animation:petal var(--d) linear var(--dl) infinite}
+.petal svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 1px 1.5px rgba(60,70,40,.28));
+  animation:sway var(--sw) ease-in-out infinite alternate}
+@keyframes petal{0%{transform:translate(0,0) rotate(var(--r0));opacity:0}8%{opacity:.92}82%{opacity:.85}
+  100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r1));opacity:0}}
+@keyframes sway{from{transform:translateX(-9px) rotateY(0deg)}to{transform:translateX(9px) rotateY(75deg)}}
+
+/* =========================================================
+   3. FINAL — the invitation card, full bleed
+   ========================================================= */
+#final-screen{background:#eef3f8}
+/* slightly oversized so the card's own cream border sits just off-screen */
+.final-art{position:absolute;inset:-2.9% -3.6%;background:#eef3f8 url(../assets/card.jpg) center/cover no-repeat;
+  transition:transform 2.2s var(--ease-out),filter 2.2s var(--ease-out)}
+.js .final-art:not(.in){transform:scale(1.05);filter:saturate(.9)}
+
+/* music toggle: appears once the date is revealed; pinned to the column's bottom-right corner */
+.v-replay.sound{position:fixed;top:auto;bottom:calc(18px + env(safe-area-inset-bottom,0px));right:max(14px,calc((100vw - 520px)/2 + 14px));
+  z-index:60;opacity:0;pointer-events:none;
+  transition:opacity .9s var(--ease-soft),background-color .25s var(--ease-soft),transform .25s var(--ease-out),box-shadow .25s var(--ease-soft)}
+.music-ready .v-replay.sound{opacity:1;pointer-events:auto}
+.sound .i-on,.sound .i-off{display:none}
+.sound[aria-pressed="true"] .i-on{display:block}
+.sound[aria-pressed="false"] .i-off{display:block}
+.v-replay.sound:hover svg{transform:none}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+  .js .intro-inner>*{opacity:1;filter:none;transform:none}
+  .js .final-art:not(.in){transform:none;filter:none}
+}
+</style>
+<noscript><style>#intro-screen,#vid-screen{display:none}.js .final-art{transform:none}html.is-locked,html.is-locked body{overflow:auto;height:auto}</style></noscript>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="petalG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffefa"/><stop offset=".62" stop-color="#fbf5e3"/><stop offset="1" stop-color="#f4c862"/></linearGradient>
+</defs></svg>
+<div class="stage" id="stage">
+
+  <!-- 0. INTRO — swipe right to begin -->
+  <section class="screen" id="intro-screen" tabindex="0" role="button"
+           aria-label="Save the date. Swipe right, or press Enter, to begin.">
+    <div class="intro-inner" id="introInner">
+      <div class="std">SAVE&nbsp;THE&nbsp;DATE</div>
+      <div class="swipe-line">swipe right to begin</div>
+      <div class="arrow-right" aria-hidden="true">
+        <svg viewBox="0 0 104 22" xmlns="http://www.w3.org/2000/svg">
+          <line x1="2" y1="11" x2="94" y2="11" stroke="#4c5a31" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M84 4 L98 11 L84 18" fill="none" stroke="#4c5a31" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1. VIDEO -->
+  <section class="screen" id="vid-screen">
+    <video id="introVideo" muted playsinline preload="auto" poster="../assets/intro.jpg"
+           aria-label="A dove flies over a garden in Goa">
+      <source src="../assets/opening-video.mp4" type="video/mp4">
+      <source src="../assets/opening-video.webm" type="video/webm">
+    </video>
+    <!-- 2. SCRATCH: fades in over the video's last frame -->
+    <div class="scratch-layer" id="scratch-layer" aria-hidden="true" inert>
+      <canvas class="mini m1 sa" data-shape="a" aria-hidden="true"></canvas>
+      <canvas class="mini m2 sb" data-shape="b" aria-hidden="true"></canvas>
+      <canvas class="mini m3 sc" data-shape="c" aria-hidden="true"></canvas>
+      <canvas class="mini m4 sa" data-shape="a" aria-hidden="true"></canvas>
+      <canvas class="mini m5 sb" data-shape="b" aria-hidden="true"></canvas>
+      <p class="scratch-prompt">Scratch the cloud to reveal the date
+        <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.8 5.5 4.5 9.2 10 10-5.5.8-9.2 4.5-10 10-.8-5.5-4.5-9.2-10-10 5.5-.8 9.2-4.5 10-10z"/></svg>
+      </p>
+      <div class="cloud-wrap" id="cloudWrap">
+        <div class="cloud-reveal">
+          <div class="dlabel">Save the Date</div>
+          <div class="date">March 5, 2027</div>
+        </div>
+        <canvas id="cloudCanvas" tabindex="0" role="button"
+                aria-label="Scratch the cloud to reveal the date. Drag to scratch, or press Enter to reveal."></canvas>
+      </div>
+      <p class="cloud-hint" id="cloudHint" aria-live="polite">Scratch with your finger</p>
+      <div class="petals" aria-hidden="true"></div>
+    </div>
+    <button class="v-replay" id="replayBtn" type="button" aria-label="Replay the animation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+      </svg>
+    </button>
+  </section>
+
+  <!-- 3. FINAL -->
+  <section class="screen" id="final-screen" role="img"
+           aria-label="Save the date for the wedding of Shalome and Tanmay. March 5, 2027, Goa. Formal invitation to follow.">
+    <div class="final-art" id="finalArt"></div>
+    <div class="petals" aria-hidden="true"></div>
+  </section>
+
+  <button class="v-replay sound" id="soundBtn" type="button" aria-pressed="false" aria-label="Music">
+      <svg class="i-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      <svg class="i-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>
+  </button>
+
+  <audio id="bgm" controlslist="nodownload" loop preload="none" src="../assets/background-music.mp3"></audio>
+
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+const stage = $('stage'), intro = $('intro-screen'), scratchScreen = $('vid-screen'), scratchLayer = $('scratch-layer'),
+      finalScreen = $('final-screen'), finalArt = $('finalArt'), vid = $('introVideo');
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- smooth, interruptible glide between screens ---------- */
+let glideId = 0, gliding = false;
+function glideTo(target, duration = 1450){
+  if (!target) return;
+  const startY = window.scrollY;
+  const endY = Math.max(0, target.getBoundingClientRect().top + startY);
+  const dist = endY - startY;
+  if (Math.abs(dist) < 2) return;
+  if (reduceMotion()){ window.scrollTo({top:endY, behavior:'instant'}); return; }
+  const id = ++glideId; gliding = true;
+  const t0 = performance.now();
+  const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2;
+  (function frame(now){
+    if (id !== glideId) return;                      // cancelled by the person
+    const t = Math.min(1, (now - t0) / duration);
+    window.scrollTo({top: startY + dist*ease(t), behavior:'instant'});
+    if (t < 1) requestAnimationFrame(frame); else gliding = false;
+  })(t0);
+}
+const stopGlide = () => { glideId++; gliding = false; };
+['wheel','touchstart','keydown'].forEach(ev =>
+  window.addEventListener(ev, () => { if (gliding) stopGlide(); }, {passive:true}));
+
+/* ---------- 0. intro: swipe right (or tap / Enter) to begin ---------- */
+let started = false, dragging = false, moved = false, videoKicked = false, sx = 0, sy = 0, lastX = 0, lastT = 0, vel = 0;
+function kickVideo(){
+  if (videoKicked) return; videoKicked = true;
+  try { vid.currentTime = 0; } catch(_){}
+  const p = vid.play();
+  if (p && p.catch) p.catch(() => { setTimeout(showScratch, 900); }); // autoplay blocked: don't dead-end
+}
+function finishIntro(){
+  if (started) return; started = true;
+  kickVideo();
+  unlockAudio();                                  // this tap is the permission slip for music later
+  intro.classList.remove('snapback'); intro.classList.add('sliding');
+  intro.style.transform = 'translateX(105%)'; intro.style.opacity = '0';
+  stage.classList.add('begun');
+  root.classList.remove('is-locked');
+  intro.setAttribute('aria-hidden','true'); intro.tabIndex = -1;
+  setTimeout(() => { intro.style.display = 'none'; }, 720);
+}
+intro.addEventListener('pointerdown', e => {
+  if (started) return;
+  dragging = true; moved = false; sx = lastX = e.clientX; sy = e.clientY; lastT = e.timeStamp; vel = 0;
+  intro.classList.remove('snapback'); intro.setPointerCapture(e.pointerId);
+});
+intro.addEventListener('pointermove', e => {
+  if (!dragging || started) return;
+  const dx = e.clientX - sx, dy = e.clientY - sy;
+  if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+  moved = true;
+  if (Math.abs(dy) > Math.abs(dx) && dx < 12) return;           // vertical gesture: ignore
+  const d = Math.max(0, dx), vw = intro.clientWidth || 360;
+  const dt = e.timeStamp - lastT; if (dt > 0) vel = (e.clientX - lastX) / dt; lastX = e.clientX; lastT = e.timeStamp;
+  intro.style.transform = `translateX(${d}px)`;
+  intro.style.opacity = String(1 - Math.min(.5, d / vw * .7));
+  if (!videoKicked && d > 24) kickVideo();                       // video starts under the finger
+  if (d > vw * .28) { dragging = false; finishIntro(); }
+});
+function endDrag(){
+  if (!dragging || started) return; dragging = false;
+  if (!moved) { finishIntro(); return; }                          // a tap begins too
+  if (vel > .6) { finishIntro(); return; }                        // a quick flick commits
+  intro.classList.add('snapback');
+  intro.style.transform = 'translateX(0)'; intro.style.opacity = '1';
+  try { vid.pause(); vid.currentTime = 0; } catch(_){}; videoKicked = false;
+}
+intro.addEventListener('pointerup', endDrag);
+intro.addEventListener('pointercancel', endDrag);
+intro.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight'){ e.preventDefault(); finishIntro(); }
+});
+
+/* ---------- 1. video -> scratch ---------- */
+let safetyTimer = 0, scratchShown = false;
+function showScratch(){
+  if (scratchShown) return; scratchShown = true;
+  scratchLayer.classList.add('ready'); scratchLayer.removeAttribute('aria-hidden'); scratchLayer.inert = false;
+}
+function hideScratch(){
+  scratchShown = false;
+  scratchLayer.classList.remove('ready'); scratchLayer.setAttribute('aria-hidden','true'); scratchLayer.inert = true;
+}
+vid.addEventListener('ended', () => {
+  try { vid.pause(); vid.currentTime = Math.max(0, vid.duration - .05); } catch(_){}
+  setTimeout(showScratch, 180);                         // let the last frame breathe, then the clouds drift in
+});
+vid.addEventListener('play', () => {
+  clearTimeout(safetyTimer);
+  safetyTimer = setTimeout(() => { if (started) showScratch(); }, ((vid.duration || 7) * 1000) + 500);
+});
+$('replayBtn').addEventListener('click', () => {
+  hideScratch(); vid.currentTime = 0; const p = vid.play(); if (p && p.catch) p.catch(() => setTimeout(showScratch, 400));
+});
+
+/* ---------- 2. scratch the cloud ---------- */
+const CLOUD_D = 'M70 150 C40 150 25 128 40 110 C30 92 46 70 70 76 C80 52 120 46 138 70 ' +
+                'C150 50 190 50 200 74 C230 66 254 88 244 112 C268 116 270 150 240 152 C240 152 90 152 70 150 Z';
+const VB = {x:22, y:42, w:252, h:124};   // cloud bounds plus room for the fluff
+const cloudPath = new Path2D(CLOUD_D);
+const wrap = $('cloudWrap'), canvas = $('cloudCanvas'), ctx = canvas.getContext('2d');
+wrap.style.setProperty('--cloudMask', 'url("data:image/svg+xml,' + encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='${VB.x} ${VB.y} ${VB.w} ${VB.h}' preserveAspectRatio='none'><path d='${CLOUD_D}' fill='white'/></svg>`) + '")');
+
+// the pale plate under the date gets a feathered edge so it sits in the sky like the cotton cloud, not like a cut-out
+wrap.style.setProperty('--plateMask', 'url("data:image/svg+xml,' + encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='${VB.x} ${VB.y} ${VB.w} ${VB.h}' preserveAspectRatio='none'><filter id='b' x='-20%' y='-30%' width='140%' height='160%'><feGaussianBlur stdDeviation='3.2'/></filter><path d='${CLOUD_D}' fill='white' stroke='white' stroke-width='5' stroke-linejoin='round' filter='url(#b)'/></svg>`) + '")');
+
+// low-res twin of the cloud: cheap, accurate "how much is scratched" measurement
+const cov = document.createElement('canvas'), cctx = cov.getContext('2d', {willReadFrequently:true});
+let W = 0, H = 0, dpr = 1, covTotal = 1, ready = false, cleared = false, drawing = false, strokes = 0, lx = null, ly = null, checkQueued = false;
+
+// path-unit lookup of the silhouette, so puffs can be placed inside it and along its edge
+const sil = (() => {
+  const c = document.createElement('canvas'); c.width = 300; c.height = 200;
+  const x = c.getContext('2d', {willReadFrequently:true}); x.fillStyle = '#000'; x.fill(cloudPath);
+  const d = x.getImageData(0,0,300,200).data;
+  const inside = (px, py) => px >= 0 && py >= 0 && px < 300 && py < 200 && d[((py|0)*300 + (px|0))*4 + 3] > 128;
+  const edge = [];
+  for (let py = 46; py < 160; py += 1) for (let px = 26; px < 272; px += 1)
+    if (inside(px,py) && (!inside(px-2,py) || !inside(px+2,py) || !inside(px,py-2) || !inside(px,py+2))) edge.push([px,py]);
+  return {inside, edge};
+})();
+
+function paintCloud(){
+  const s = W / VB.w, K = dpr * s;
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+  ctx.setTransform(1,0,0,1,0,0); ctx.globalCompositeOperation = 'source-over'; ctx.shadowBlur = 0; ctx.clearRect(0,0,canvas.width,canvas.height);
+  const R = (() => { let t = 11; return () => (t = (t * 1664525 + 1013904223) >>> 0) / 4294967296; })();   // same cloud every time
+
+  const puff = (x, y, r, rgb, a) => {                              // one soft ball of cotton
+    const g = ctx.createRadialGradient(x, y, r*.1, x, y, r);
+    g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(.5, `rgba(${rgb},${a*.55})`); g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+  };
+  const spot = (ymin, ymax) => {                                   // random point inside the silhouette
+    for (let i = 0; i < 60; i++){
+      const x = VB.x + 6 + R()*(VB.w - 12), y = ymin + R()*(ymax - ymin);
+      if (sil.inside(x, y)) return [x, y];
+    }
+    return [138, 110];
+  };
+  const top = 54, bot = 152, span = bot - top;
+
+  ctx.save(); ctx.scale(K, K); ctx.translate(-VB.x, -VB.y);
+  // soft-edged body: only the blurred shadow of the silhouette is drawn (the shape itself sits off-canvas),
+  // so there is no hard outline anywhere, just an opaque core that fades out through the puffs
+  const OFF = 4000;
+  ctx.save(); ctx.translate(-OFF, 0);
+  ctx.shadowColor = '#eaf1f8'; ctx.shadowOffsetX = OFF * K; ctx.shadowBlur = 16 * dpr; ctx.fillStyle = '#000';
+  ctx.fill(cloudPath); ctx.fill(cloudPath); ctx.restore();
+  ctx.shadowColor = 'transparent'; ctx.shadowOffsetX = 0; ctx.shadowBlur = 0;
+  for (let i = 0; i < 60; i++){ const [x,y] = spot(top + span*.45, bot); puff(x, y + 3, 16 + R()*14, '146,172,208', .42); }   // cool underside
+  for (let i = 0; i < 170; i++){ const [x,y] = spot(top, bot - 6); puff(x, y, 9 + R()*12, '240,246,252', .8); }                // body
+  for (let i = 0; i < 46; i++){ const [x,y] = spot(top + 4, bot - 10); puff(x, y, 5 + R()*6, '130,156,192', .13); }            // creases between billows
+  for (let i = 0; i < 110; i++){ const [x,y] = spot(top, top + span*.62); puff(x, y - 2, 6 + R()*9, '255,255,255', .95); }     // sunlit tops
+  ctx.restore();
+
+  // feather the whole silhouette: fuzzy, not cut out
+  const m = document.createElement('canvas'); m.width = canvas.width; m.height = canvas.height;
+  const mx = m.getContext('2d');
+  mx.scale(K, K); mx.translate(-VB.x - OFF, -VB.y);
+  mx.shadowColor = '#fff'; mx.shadowOffsetX = OFF * K; mx.shadowBlur = 10 * dpr;      // only the blurred shadow lands on the canvas
+  mx.fillStyle = mx.strokeStyle = '#000'; mx.lineWidth = 9; mx.lineJoin = 'round';
+  for (let i = 0; i < 2; i++){ mx.fill(cloudPath); mx.stroke(cloudPath); }
+  ctx.globalCompositeOperation = 'destination-in'; ctx.setTransform(1,0,0,1,0,0); ctx.drawImage(m, 0, 0);
+  ctx.globalCompositeOperation = 'source-over';
+
+  // cotton wisps along the edge
+  ctx.save(); ctx.scale(K, K); ctx.translate(-VB.x, -VB.y);
+  const e = sil.edge, cx0 = 150, cy0 = 105;
+  for (let i = 0; i < 190; i++){
+    const [x,y] = e[(R()*e.length)|0], dx = x - cx0, dy = (y - cy0) * 1.6, L = Math.hypot(dx, dy) || 1, out = R()*4.5;
+    const px = x + dx/L*out, py = y + dy/L*out;
+    puff(px, py, 2.6 + R()*4.6, y > top + span*.7 ? '214,226,240' : '255,255,255', .9);
+  }
+  for (let i = 0; i < 40; i++){                                   // a few larger, fainter fluffs
+    const [x,y] = e[(R()*e.length)|0]; puff(x + (R()-.5)*5, y + (R()-.5)*5 - 1, 7 + R()*5, '255,255,255', .38);
+  }
+  ctx.restore();
+
+  ctx.save(); ctx.scale(K, K); ctx.translate(-VB.x, -VB.y);       // fine fibres of texture, inside only
+  for (let i = 0; i < 110; i++){
+    const [x,y] = spot(top, bot);
+    ctx.fillStyle = i % 3 ? 'rgba(255,255,255,.4)' : 'rgba(120,145,180,.09)';
+    ctx.beginPath(); ctx.arc(x, y, .25 + R()*.55, 0, 7); ctx.fill();
+  }
+  ctx.restore();
+
+  ctx.save(); ctx.scale(dpr, dpr);
+  ctx.fillStyle = 'rgba(76,90,49,.85)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `italic 600 ${Math.round(W*.05)}px Cormorant, Georgia, serif`;
+  ctx.fillText('scratch', W/2, H*.52);
+  ctx.restore();
+
+  // twin
+  cov.width = 120; cov.height = Math.max(1, Math.round(120 * H / W));
+  cctx.setTransform(1,0,0,1,0,0); cctx.clearRect(0,0,cov.width,cov.height); cctx.globalCompositeOperation = 'source-over';
+  const k = cov.width / VB.w;
+  cctx.save(); cctx.scale(k,k); cctx.translate(-VB.x,-VB.y); cctx.fillStyle = '#000'; cctx.fill(cloudPath); cctx.restore();
+  const d = cctx.getImageData(0,0,cov.width,cov.height).data; let a = 0;
+  for (let i = 3; i < d.length; i += 4) a += d[i];
+  covTotal = a || 1;
+  ready = true;
+}
+function layout(){
+  const r = canvas.getBoundingClientRect(); if (!r.width) return;
+  if (ready && Math.abs(r.width - W) < 1 && Math.abs(r.height - H) < 1) return;   // ignore mobile URL-bar resizes
+  if (ready && strokes > 0) return;                                              // never wipe someone's progress
+  W = r.width; H = r.height; dpr = Math.min(3, devicePixelRatio || 1);
+  paintCloud();
+}
+new ResizeObserver(layout).observe(canvas);
+layout();
+(document.fonts && document.fonts.load ? document.fonts.load('italic 600 16px Cormorant') : Promise.resolve())
+  .then(() => { if (!cleared && strokes === 0) { ready = false; layout(); } }).catch(() => {});
+
+const BRUSH = 36;
+function pos(e){ const r = canvas.getBoundingClientRect(); return {x:e.clientX - r.left, y:e.clientY - r.top}; }
+function scrub(x, y){
+  ctx.save(); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.globalCompositeOperation = 'destination-out';
+  ctx.strokeStyle = ctx.fillStyle = '#000'; ctx.shadowColor = '#000'; ctx.shadowBlur = 10;      // feathered edge
+  ctx.lineWidth = BRUSH; ctx.lineCap = ctx.lineJoin = 'round';
+  if (lx != null){ ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(x, y); ctx.stroke(); }
+  ctx.beginPath(); ctx.arc(x, y, BRUSH/2, 0, 7); ctx.fill(); ctx.restore();
+  const k = cov.width / W;
+  cctx.save(); cctx.setTransform(k,0,0,k,0,0); cctx.globalCompositeOperation = 'destination-out';
+  cctx.strokeStyle = cctx.fillStyle = '#000'; cctx.lineWidth = BRUSH; cctx.lineCap = cctx.lineJoin = 'round';
+  if (lx != null){ cctx.beginPath(); cctx.moveTo(lx, ly); cctx.lineTo(x, y); cctx.stroke(); }
+  cctx.beginPath(); cctx.arc(x, y, BRUSH/2, 0, 7); cctx.fill(); cctx.restore();
+  lx = x; ly = y;
+}
+function progress(){
+  const d = cctx.getImageData(0,0,cov.width,cov.height).data; let a = 0;
+  for (let i = 3; i < d.length; i += 4) a += d[i];
+  return 1 - a / covTotal;
+}
+function reveal(){
+  if (cleared) return; cleared = true;
+  wrap.classList.add('revealed');
+  if (window.__music) window.__music.show();                       // the date is on screen: start easing the music in
+  canvas.style.transition = 'opacity .8s var(--ease-soft)'; canvas.style.opacity = '0'; canvas.style.pointerEvents = 'none';
+  setTimeout(() => { canvas.style.display = 'none'; }, 820);
+  const h = $('cloudHint');
+  h.classList.add('swap');
+  setTimeout(() => {
+    h.innerHTML = 'See you in Goa <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 22c-.3-5 .2-9 1.2-13"/><path d="M13.7 9C12 5.5 8.5 4 5 5"/><path d="M13.7 9C14 5 17 3 21 3.5"/><path d="M13.7 9C10 8 6.5 9.5 4.5 13"/><path d="M13.7 9c3.2 0 6.3 2 7.5 5.5"/></svg>';
+    h.classList.remove('swap');
+  }, 450);
+  setTimeout(() => glideTo(finalScreen, 1650), 2000);              // let the date be read, then drift on
+}
+function queueCheck(){
+  if (checkQueued || cleared) return; checkQueued = true;
+  requestAnimationFrame(() => { checkQueued = false; if (strokes >= 12 && progress() > .6) reveal(); });
+}
+canvas.addEventListener('pointerdown', e => {
+  if (!ready || cleared) return;
+  drawing = true; lx = ly = null; wrap.classList.add('touched');
+  canvas.setPointerCapture(e.pointerId); const p = pos(e); scrub(p.x, p.y); strokes++; e.preventDefault();
+});
+canvas.addEventListener('pointermove', e => {
+  if (!drawing || cleared) return;
+  const p = pos(e); scrub(p.x, p.y); strokes++; queueCheck(); e.preventDefault();
+});
+const stopScratch = () => { drawing = false; lx = ly = null; queueCheck(); };
+canvas.addEventListener('pointerup', stopScratch);
+canvas.addEventListener('pointercancel', stopScratch);
+canvas.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); wrap.classList.add('touched'); reveal(); }
+});
+
+/* ---------- small cotton clouds (same technique as the big one, drawn once each) ---------- */
+const MINI = {
+  a:{d:'M14 42 C2 42 -1 28 10 24 C7 12 22 6 29 14 C33 2 54 0 60 13 C72 6 88 15 83 28 C96 29 98 42 84 42 Z', vb:{x:-6,y:-6,w:110,h:56}},
+  b:{d:'M12 38 C0 38 -1 24 11 22 C10 8 28 4 36 14 C44 5 62 8 62 22 C74 20 80 32 70 38 Z', vb:{x:-6,y:-4,w:94,h:50}},
+  c:{d:'M10 30 C-2 30 0 18 12 17 C14 6 30 4 36 12 C44 2 62 4 64 15 C78 12 90 22 80 30 Z', vb:{x:-6,y:-4,w:104,h:44}}
+};
+function paintMini(c, seed){
+  const r = c.getBoundingClientRect(); if (!r.width) return;
+  const key = Math.round(r.width); if (c._k === key) return; c._k = key;
+  const m = MINI[c.dataset.shape], vb = m.vb, path = new Path2D(m.d);
+  const dp = Math.min(3, devicePixelRatio || 1), K = dp * r.width / vb.w, f = vb.w / 252 * 1.7;
+  c.width = Math.round(r.width * dp); c.height = Math.round(r.height * dp);
+  const x = c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
+  // silhouette lookup (2 samples per path unit)
+  const S = 2, hc = document.createElement('canvas'); hc.width = Math.ceil(vb.w*S); hc.height = Math.ceil(vb.h*S);
+  const hx = hc.getContext('2d', {willReadFrequently:true}); hx.scale(S,S); hx.translate(-vb.x,-vb.y); hx.fill(path);
+  const hd = hx.getImageData(0,0,hc.width,hc.height).data;
+  const inside = (u,v) => { const i = ((v-vb.y)*S|0), j = ((u-vb.x)*S|0); return i>=0 && j>=0 && i<hc.height && j<hc.width && hd[(i*hc.width+j)*4+3] > 128; };
+  let t = seed; const R = () => (t = (t*1664525 + 1013904223) >>> 0) / 4294967296;
+  const ys = [], edge = []; let y0 = 1e9, y1 = -1e9;
+  for (let v = vb.y; v < vb.y+vb.h; v += .5) for (let u = vb.x; u < vb.x+vb.w; u += .5)
+    if (inside(u,v)){ y0 = Math.min(y0,v); y1 = Math.max(y1,v);
+      if (!inside(u-1.5,v) || !inside(u+1.5,v) || !inside(u,v-1.5) || !inside(u,v+1.5)) edge.push([u,v]); }
+  const spot = (a, b) => { for (let i = 0; i < 40; i++){ const u = vb.x + R()*vb.w, v = a + R()*(b-a); if (inside(u,v)) return [u,v]; } return [vb.x+vb.w/2, (y0+y1)/2]; };
+  const puff = (u, v, rr, rgb, a) => { const g = x.createRadialGradient(u,v,rr*.1,u,v,rr);
+    g.addColorStop(0,`rgba(${rgb},${a})`); g.addColorStop(.5,`rgba(${rgb},${a*.55})`); g.addColorStop(1,`rgba(${rgb},0)`);
+    x.fillStyle = g; x.beginPath(); x.arc(u,v,rr,0,7); x.fill(); };
+  const span = y1 - y0, OFF = 4000;
+  x.save(); x.scale(K,K); x.translate(-vb.x, -vb.y);
+  x.save(); x.translate(-OFF,0); x.shadowColor = '#eaf1f8'; x.shadowOffsetX = OFF*K; x.shadowBlur = 6*dp; x.fillStyle = '#000';
+  x.fill(path); x.fill(path); x.restore(); x.shadowColor = 'transparent'; x.shadowOffsetX = 0; x.shadowBlur = 0;
+  for (let i = 0; i < 18; i++){ const [u,v] = spot(y0+span*.45, y1); puff(u, v+1.5*f, (16+R()*14)*f, '146,172,208', .42); }
+  for (let i = 0; i < 55; i++){ const [u,v] = spot(y0, y1-2); puff(u, v, (9+R()*12)*f, '240,246,252', .8); }
+  for (let i = 0; i < 34; i++){ const [u,v] = spot(y0, y0+span*.62); puff(u, v-f, (6+R()*9)*f, '255,255,255', .95); }
+  x.restore();
+  const m2 = document.createElement('canvas'); m2.width = c.width; m2.height = c.height; const mx = m2.getContext('2d');
+  mx.scale(K,K); mx.translate(-vb.x-OFF, -vb.y); mx.shadowColor = '#fff'; mx.shadowOffsetX = OFF*K; mx.shadowBlur = 5*dp;
+  mx.fillStyle = mx.strokeStyle = '#000'; mx.lineWidth = 6; mx.lineJoin = 'round';
+  for (let i = 0; i < 2; i++){ mx.fill(path); mx.stroke(path); }
+  x.globalCompositeOperation = 'destination-in'; x.setTransform(1,0,0,1,0,0); x.drawImage(m2,0,0); x.globalCompositeOperation = 'source-over';
+  x.save(); x.scale(K,K); x.translate(-vb.x,-vb.y);
+  const cx0 = vb.x + vb.w/2, cy0 = (y0+y1)/2 + 4;
+  for (let i = 0; i < 70 && edge.length; i++){
+    const [u,v] = edge[(R()*edge.length)|0], dx = u-cx0, dy = (v-cy0)*1.6, L = Math.hypot(dx,dy) || 1, o = R()*3*f;
+    puff(u+dx/L*o, v+dy/L*o, (2.6+R()*4.6)*f*.9, v > y0+span*.7 ? '214,226,240' : '255,255,255', .9);
+  }
+  x.restore();
+}
+const minis = [...document.querySelectorAll('.mini')];
+const paintMinis = () => minis.forEach((c,i) => paintMini(c, 31 + i*17));
+new ResizeObserver(paintMinis).observe(scratchScreen);
+paintMinis();
+
+/* ---------- petals ---------- */
+document.querySelectorAll('.petals').forEach((box, bi) => {
+  const w = box.parentElement.clientWidth || 390, h = innerHeight || 800;
+  let t = 5 + bi*13; const R = () => (t = (t*1664525 + 1013904223) >>> 0) / 4294967296;
+  for (let i = 0; i < 7; i++){
+    const el = document.createElement('span'); el.className = 'petal';
+    const st = el.style, size = 11 + R()*7;
+    st.setProperty('--x', (2 + R()*18).toFixed(1) + '%');
+    st.setProperty('--y', (27 + R()*9).toFixed(1) + '%');
+    st.setProperty('--s', size.toFixed(1) + 'px');
+    st.setProperty('--dx', Math.round(w*(.2 + R()*.42)) + 'px');
+    st.setProperty('--dy', Math.round(h*(.2 + R()*.26)) + 'px');
+    st.setProperty('--r0', Math.round(R()*90 - 45) + 'deg');
+    st.setProperty('--r1', Math.round(180 + R()*260) + 'deg');
+    st.setProperty('--d', (15 + R()*9).toFixed(1) + 's');
+    st.setProperty('--dl', (-R()*22).toFixed(1) + 's');
+    st.setProperty('--sw', (2.4 + R()*2).toFixed(1) + 's');
+    el.innerHTML = '<svg viewBox="0 0 20 28" aria-hidden="true"><path d="M10 1C17.5 8 18.5 20 10 27 1.5 20 2.5 8 10 1Z" fill="url(#petalG)" stroke="rgba(214,170,70,.35)" stroke-width=".6"/></svg>';
+    box.appendChild(el);
+  }
+});
+
+/* ---------- background music: plays only on the final card ---------- */
+const bgm = $('bgm'), soundBtn = $('soundBtn');
+const MUSIC_VOL = .55;
+let wantMusic = true, inZone = false, dateShown = false, fadeId = 0;
+function setBtn(on){
+  soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  soundBtn.setAttribute('aria-label', on ? 'Mute music' : 'Play music');
+}
+function unlockAudio(){                                          // iOS only lets later code play() if a tap touched the element first
+  try {
+    bgm.muted = true; const p = bgm.play();
+    if (p && p.then) p.then(() => { bgm.pause(); bgm.currentTime = 0; bgm.muted = false; }).catch(() => { bgm.muted = false; });
+    else bgm.muted = false;
+  } catch(_) { bgm.muted = false; }
+}
+function fade(to, ms, done){
+  const id = ++fadeId, from = bgm.volume, t0 = performance.now();
+  (function step(now){
+    if (id !== fadeId) return;
+    const k = Math.min(1, (now - t0) / ms);
+    try { bgm.volume = from + (to - from) * k; } catch(_) {}
+    if (k < 1) requestAnimationFrame(step); else if (done) done();
+  })(t0);
+}
+function playMusic(){
+  try { bgm.volume = 0; } catch(_) {}
+  const p = bgm.play();
+  const ok = () => { if (!inZone) { bgm.pause(); setBtn(false); return; } setBtn(true); fade(MUSIC_VOL, 3000); };   // scrolled back to the start before play() resolved
+  if (p && p.then) p.then(ok).catch(() => setBtn(false)); else ok();   // blocked: button shows "Play music"
+}
+function stopMusic(){ fade(0, 700, () => bgm.pause()); }
+soundBtn.addEventListener('click', () => {
+  if (bgm.paused){ wantMusic = true; playMusic(); } else { wantMusic = false; setBtn(false); stopMusic(); }
+});
+function maybePlay(){ if (dateShown && inZone && wantMusic && bgm.paused) playMusic(); }
+const seen = new Map();                                            // music lives with the scratch + final screens, not the video
+const __io = new IntersectionObserver(es => {
+  es.forEach(en => seen.set(en.target, en.intersectionRatio));
+  inZone = [...seen.values()].some(r => r >= .25);
+  if (inZone) maybePlay(); else if (!bgm.paused) { setBtn(false); stopMusic(); }
+}, {threshold: [0, .25, .5, .75, 1]});
+__io.observe(scratchScreen); __io.observe(finalScreen);
+window.__music = {show(){ dateShown = true; root.classList.add('music-ready'); maybePlay(); }};
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && !bgm.paused) { bgm.pause(); setBtn(false); }
+  else if (!document.hidden) maybePlay();
+});
+setBtn(false);
+
+/* ---------- 3. final card settles in once, when it arrives ---------- */
+new IntersectionObserver((es, io) => {
+  es.forEach(en => { if (en.isIntersecting){ finalArt.classList.add('in'); io.disconnect(); } });
+}, {threshold: .35}).observe(finalScreen);
+})();
+</script>
+</body>
+</html>

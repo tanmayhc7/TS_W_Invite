@@ -2,7 +2,10 @@
 
 Interactive save-the-date for the wedding of Shalome & Tanmay: **March 5, 2027, Goa.** A formal invitation will follow.
 
-**Live site:** https://tanmayhc7.github.io/ts_saveTheDate/
+**Shalome & Tanmay:** https://tanmayhc7.github.io/ts_saveTheDate/shalome-tanmay/
+**Tanmay & Shalome:** https://tanmayhc7.github.io/ts_saveTheDate/tanmay-shalome/
+
+(The original link, https://tanmayhc7.github.io/ts_saveTheDate/, still shows Shalome & Tanmay, so anything already shared keeps working.)
 
 ## How it works
 1. Swipe right (or tap, or press Enter) to begin.
@@ -14,6 +17,9 @@ Works with touch, mouse and keyboard, and respects reduced-motion settings.
 
 ## Files
 - `index.html` — the whole page (HTML, CSS and JavaScript, no build step)
+- `shalome-tanmay/index.html`, `tanmay-shalome/index.html` — the two named versions, generated from `index.html` (don't edit them by hand)
+- `make_variant.py` — regenerates both: edit `index.html`, then run `python3 make_variant.py`
+- `assets/card-tanmay-shalome.jpg`, `assets/og-card-tanmay-shalome.jpg` — card and link-preview image with the names swapped
 - `assets/opening-video.mp4`, `assets/opening-video.webm` — opening animation
 - `assets/scene.jpg`, `assets/intro.jpg`, `assets/card.jpg` — the painted artwork
 - `assets/og-card.jpg`, `assets/icon-180.png` — link-preview image and home-screen icon
