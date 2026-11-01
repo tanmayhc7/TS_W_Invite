@@ -143,6 +143,18 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 .cloud-wrap.touched::after,.cloud-wrap.revealed::after{opacity:0;animation:none}
 @keyframes sheen{0%{background-position:130% 0}60%,100%{background-position:-30% 0}}
 
+/* small decorative clouds around the main one; they stay after the main cloud is scratched away.
+   Placed clear of the painted birds (upper right). */
+.mini{position:absolute;pointer-events:none;z-index:1;opacity:.96;
+  filter:drop-shadow(0 4px 5px rgba(70,96,130,.2));animation:drift var(--dur,12s) ease-in-out infinite alternate}
+.mini.sa{aspect-ratio:110/56}.mini.sb{aspect-ratio:94/50}.mini.sc{aspect-ratio:104/44}
+.m1{left:1%;top:4.6vh;width:10.5%;--dur:13s}
+.m2{right:1%;top:6.4vh;width:9.5%;--dur:16s}
+.m3{right:-1%;top:25.5vh;width:15%;--dur:18s}
+.m4{left:-1%;top:27.2vh;width:11%;--dur:14s}
+.m5{left:2%;top:18.5vh;width:7.5%;--dur:20s}
+@keyframes drift{from{transform:translateX(-4px)}to{transform:translateX(5px)}}
+
 /* =========================================================
    3. FINAL — the invitation card, full bleed
    ========================================================= */
@@ -197,6 +209,11 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 
   <!-- 2. SCRATCH -->
   <section class="screen" id="scratch-screen">
+    <canvas class="mini m1 sa" data-shape="a" aria-hidden="true"></canvas>
+    <canvas class="mini m2 sb" data-shape="b" aria-hidden="true"></canvas>
+    <canvas class="mini m3 sc" data-shape="c" aria-hidden="true"></canvas>
+    <canvas class="mini m4 sa" data-shape="a" aria-hidden="true"></canvas>
+    <canvas class="mini m5 sb" data-shape="b" aria-hidden="true"></canvas>
     <p class="scratch-prompt">Scratch the cloud to reveal the date
       <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.8 5.5 4.5 9.2 10 10-5.5.8-9.2 4.5-10 10-.8-5.5-4.5-9.2-10-10 5.5-.8 9.2-4.5 10-10z"/></svg>
     </p>
@@ -487,6 +504,59 @@ canvas.addEventListener('pointercancel', stopScratch);
 canvas.addEventListener('keydown', e => {
   if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); wrap.classList.add('touched'); reveal(); }
 });
+
+/* ---------- small cotton clouds (same technique as the big one, drawn once each) ---------- */
+const MINI = {
+  a:{d:'M14 42 C2 42 -1 28 10 24 C7 12 22 6 29 14 C33 2 54 0 60 13 C72 6 88 15 83 28 C96 29 98 42 84 42 Z', vb:{x:-6,y:-6,w:110,h:56}},
+  b:{d:'M12 38 C0 38 -1 24 11 22 C10 8 28 4 36 14 C44 5 62 8 62 22 C74 20 80 32 70 38 Z', vb:{x:-6,y:-4,w:94,h:50}},
+  c:{d:'M10 30 C-2 30 0 18 12 17 C14 6 30 4 36 12 C44 2 62 4 64 15 C78 12 90 22 80 30 Z', vb:{x:-6,y:-4,w:104,h:44}}
+};
+function paintMini(c, seed){
+  const r = c.getBoundingClientRect(); if (!r.width) return;
+  const key = Math.round(r.width); if (c._k === key) return; c._k = key;
+  const m = MINI[c.dataset.shape], vb = m.vb, path = new Path2D(m.d);
+  const dp = Math.min(3, devicePixelRatio || 1), K = dp * r.width / vb.w, f = vb.w / 252 * 1.7;
+  c.width = Math.round(r.width * dp); c.height = Math.round(r.height * dp);
+  const x = c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
+  // silhouette lookup (2 samples per path unit)
+  const S = 2, hc = document.createElement('canvas'); hc.width = Math.ceil(vb.w*S); hc.height = Math.ceil(vb.h*S);
+  const hx = hc.getContext('2d', {willReadFrequently:true}); hx.scale(S,S); hx.translate(-vb.x,-vb.y); hx.fill(path);
+  const hd = hx.getImageData(0,0,hc.width,hc.height).data;
+  const inside = (u,v) => { const i = ((v-vb.y)*S|0), j = ((u-vb.x)*S|0); return i>=0 && j>=0 && i<hc.height && j<hc.width && hd[(i*hc.width+j)*4+3] > 128; };
+  let t = seed; const R = () => (t = (t*1664525 + 1013904223) >>> 0) / 4294967296;
+  const ys = [], edge = []; let y0 = 1e9, y1 = -1e9;
+  for (let v = vb.y; v < vb.y+vb.h; v += .5) for (let u = vb.x; u < vb.x+vb.w; u += .5)
+    if (inside(u,v)){ y0 = Math.min(y0,v); y1 = Math.max(y1,v);
+      if (!inside(u-1.5,v) || !inside(u+1.5,v) || !inside(u,v-1.5) || !inside(u,v+1.5)) edge.push([u,v]); }
+  const spot = (a, b) => { for (let i = 0; i < 40; i++){ const u = vb.x + R()*vb.w, v = a + R()*(b-a); if (inside(u,v)) return [u,v]; } return [vb.x+vb.w/2, (y0+y1)/2]; };
+  const puff = (u, v, rr, rgb, a) => { const g = x.createRadialGradient(u,v,rr*.1,u,v,rr);
+    g.addColorStop(0,`rgba(${rgb},${a})`); g.addColorStop(.5,`rgba(${rgb},${a*.55})`); g.addColorStop(1,`rgba(${rgb},0)`);
+    x.fillStyle = g; x.beginPath(); x.arc(u,v,rr,0,7); x.fill(); };
+  const span = y1 - y0, OFF = 4000;
+  x.save(); x.scale(K,K); x.translate(-vb.x, -vb.y);
+  x.save(); x.translate(-OFF,0); x.shadowColor = '#eaf1f8'; x.shadowOffsetX = OFF*K; x.shadowBlur = 6*dp; x.fillStyle = '#000';
+  x.fill(path); x.fill(path); x.restore(); x.shadowColor = 'transparent'; x.shadowOffsetX = 0; x.shadowBlur = 0;
+  for (let i = 0; i < 18; i++){ const [u,v] = spot(y0+span*.45, y1); puff(u, v+1.5*f, (16+R()*14)*f, '146,172,208', .42); }
+  for (let i = 0; i < 55; i++){ const [u,v] = spot(y0, y1-2); puff(u, v, (9+R()*12)*f, '240,246,252', .8); }
+  for (let i = 0; i < 34; i++){ const [u,v] = spot(y0, y0+span*.62); puff(u, v-f, (6+R()*9)*f, '255,255,255', .95); }
+  x.restore();
+  const m2 = document.createElement('canvas'); m2.width = c.width; m2.height = c.height; const mx = m2.getContext('2d');
+  mx.scale(K,K); mx.translate(-vb.x-OFF, -vb.y); mx.shadowColor = '#fff'; mx.shadowOffsetX = OFF*K; mx.shadowBlur = 5*dp;
+  mx.fillStyle = mx.strokeStyle = '#000'; mx.lineWidth = 6; mx.lineJoin = 'round';
+  for (let i = 0; i < 2; i++){ mx.fill(path); mx.stroke(path); }
+  x.globalCompositeOperation = 'destination-in'; x.setTransform(1,0,0,1,0,0); x.drawImage(m2,0,0); x.globalCompositeOperation = 'source-over';
+  x.save(); x.scale(K,K); x.translate(-vb.x,-vb.y);
+  const cx0 = vb.x + vb.w/2, cy0 = (y0+y1)/2 + 4;
+  for (let i = 0; i < 70 && edge.length; i++){
+    const [u,v] = edge[(R()*edge.length)|0], dx = u-cx0, dy = (v-cy0)*1.6, L = Math.hypot(dx,dy) || 1, o = R()*3*f;
+    puff(u+dx/L*o, v+dy/L*o, (2.6+R()*4.6)*f*.9, v > y0+span*.7 ? '214,226,240' : '255,255,255', .9);
+  }
+  x.restore();
+}
+const minis = [...document.querySelectorAll('.mini')];
+const paintMinis = () => minis.forEach((c,i) => paintMini(c, 31 + i*17));
+new ResizeObserver(paintMinis).observe(scratchScreen);
+paintMinis();
 
 /* ---------- 3. final card settles in once, when it arrives ---------- */
 new IntersectionObserver((es, io) => {
