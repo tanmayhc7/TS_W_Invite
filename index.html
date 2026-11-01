@@ -174,6 +174,16 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
   transition:transform 2.2s var(--ease-out),filter 2.2s var(--ease-out)}
 .js .final-art:not(.in){transform:scale(1.05);filter:saturate(.9)}
 
+/* music toggle: appears once the date is revealed; pinned to the column's bottom-right corner */
+.v-replay.sound{position:fixed;top:auto;bottom:calc(18px + env(safe-area-inset-bottom,0px));right:max(14px,calc((100vw - 520px)/2 + 14px));
+  z-index:60;opacity:0;pointer-events:none;
+  transition:opacity .9s var(--ease-soft),background-color .25s var(--ease-soft),transform .25s var(--ease-out),box-shadow .25s var(--ease-soft)}
+.music-ready .v-replay.sound{opacity:1;pointer-events:auto}
+.sound .i-on,.sound .i-off{display:none}
+.sound[aria-pressed="true"] .i-on{display:block}
+.sound[aria-pressed="false"] .i-off{display:block}
+.v-replay.sound:hover svg{transform:none}
+
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 @media (prefers-reduced-motion:reduce){
@@ -249,6 +259,13 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
     <div class="petals" aria-hidden="true"></div>
   </section>
 
+  <button class="v-replay sound" id="soundBtn" type="button" aria-pressed="false" aria-label="Music">
+      <svg class="i-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      <svg class="i-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>
+  </button>
+
+  <audio id="bgm" loop preload="none" src="assets/background-music.mp3"></audio>
+
 </div>
 
 <script>
@@ -294,6 +311,7 @@ function kickVideo(){
 function finishIntro(){
   if (started) return; started = true;
   kickVideo();
+  unlockAudio();                                  // this tap is the permission slip for music later
   intro.classList.remove('snapback'); intro.classList.add('sliding');
   intro.style.transform = 'translateX(105%)'; intro.style.opacity = '0';
   stage.classList.add('begun');
@@ -338,7 +356,7 @@ let safetyTimer = 0;
 const scratchReached = () => window.scrollY >= scratchScreen.offsetTop - innerHeight * .5;
 vid.addEventListener('ended', () => {
   try { vid.pause(); vid.currentTime = Math.max(0, vid.duration - .05); } catch(_){}
-  setTimeout(() => glideTo(scratchScreen, 1450), 180);            // let the last frame breathe
+  setTimeout(() => { if (!scratchReached()) glideTo(scratchScreen, 1450); }, 180);   // let the last frame breathe (and never yank someone back who already scrolled on)
 });
 vid.addEventListener('play', () => {
   clearTimeout(safetyTimer);
@@ -494,6 +512,7 @@ function progress(){
 function reveal(){
   if (cleared) return; cleared = true;
   wrap.classList.add('revealed');
+  if (window.__music) window.__music.show();                       // the date is on screen: start easing the music in
   canvas.style.transition = 'opacity .8s var(--ease-soft)'; canvas.style.opacity = '0'; canvas.style.pointerEvents = 'none';
   setTimeout(() => { canvas.style.display = 'none'; }, 820);
   const h = $('cloudHint');
@@ -598,6 +617,55 @@ document.querySelectorAll('.petals').forEach((box, bi) => {
     box.appendChild(el);
   }
 });
+
+/* ---------- background music: plays only on the final card ---------- */
+const bgm = $('bgm'), soundBtn = $('soundBtn');
+const MUSIC_VOL = .55;
+let wantMusic = true, inZone = false, dateShown = false, fadeId = 0;
+function setBtn(on){
+  soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  soundBtn.setAttribute('aria-label', on ? 'Mute music' : 'Play music');
+}
+function unlockAudio(){                                          // iOS only lets later code play() if a tap touched the element first
+  try {
+    bgm.muted = true; const p = bgm.play();
+    if (p && p.then) p.then(() => { bgm.pause(); bgm.currentTime = 0; bgm.muted = false; }).catch(() => { bgm.muted = false; });
+    else bgm.muted = false;
+  } catch(_) { bgm.muted = false; }
+}
+function fade(to, ms, done){
+  const id = ++fadeId, from = bgm.volume, t0 = performance.now();
+  (function step(now){
+    if (id !== fadeId) return;
+    const k = Math.min(1, (now - t0) / ms);
+    try { bgm.volume = from + (to - from) * k; } catch(_) {}
+    if (k < 1) requestAnimationFrame(step); else if (done) done();
+  })(t0);
+}
+function playMusic(){
+  try { bgm.volume = 0; } catch(_) {}
+  const p = bgm.play();
+  const ok = () => { if (!inZone) { bgm.pause(); setBtn(false); return; } setBtn(true); fade(MUSIC_VOL, 3000); };   // scrolled back to the start before play() resolved
+  if (p && p.then) p.then(ok).catch(() => setBtn(false)); else ok();   // blocked: button shows "Play music"
+}
+function stopMusic(){ fade(0, 700, () => bgm.pause()); }
+soundBtn.addEventListener('click', () => {
+  if (bgm.paused){ wantMusic = true; playMusic(); } else { wantMusic = false; setBtn(false); stopMusic(); }
+});
+function maybePlay(){ if (dateShown && inZone && wantMusic && bgm.paused) playMusic(); }
+const seen = new Map();                                            // music lives with the scratch + final screens, not the video
+const __io = new IntersectionObserver(es => {
+  es.forEach(en => seen.set(en.target, en.intersectionRatio));
+  inZone = [...seen.values()].some(r => r >= .25);
+  if (inZone) maybePlay(); else if (!bgm.paused) { setBtn(false); stopMusic(); }
+}, {threshold: [0, .25, .5, .75, 1]});
+__io.observe(scratchScreen); __io.observe(finalScreen);
+window.__music = {show(){ dateShown = true; root.classList.add('music-ready'); maybePlay(); }};
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && !bgm.paused) { bgm.pause(); setBtn(false); }
+  else if (!document.hidden) maybePlay();
+});
+setBtn(false);
 
 /* ---------- 3. final card settles in once, when it arrives ---------- */
 new IntersectionObserver((es, io) => {
