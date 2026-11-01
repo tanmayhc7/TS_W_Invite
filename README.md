@@ -2,7 +2,7 @@
 
 Interactive save-the-date for the wedding of Shalome & Tanmay: **March 5, 2027, Goa.** A formal invitation will follow.
 
-**Live site:** https://tanmayhc7.github.io/TS_W_Invite/
+**Live site:** https://tanmayhc7.github.io/ts_saveTheDate/
 
 ## How it works
 1. Swipe right (or tap, or press Enter) to begin.
