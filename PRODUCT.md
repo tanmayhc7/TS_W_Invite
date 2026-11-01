@@ -25,5 +25,5 @@ web (mobile web)
 Plain static HTML, CSS and JavaScript, hosted on GitHub Pages. No build step.
 
 ## Open decisions
-- Confirmed Pages URL (the link-preview tags assume https://tanmayhc7.github.io/TS_W_Invite/).
+- Pages URL: https://tanmayhc7.github.io/ts_saveTheDate/ (repo renamed to ts_saveTheDate).
 - How the redesign branch gets pushed: branch, pull request, or straight to Main.
