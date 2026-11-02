@@ -708,7 +708,8 @@ document.addEventListener('visibilitychange', () => {
 // if something outside our control stops it (a phone interruption, a browser quirk), pick it back up
 bgm.addEventListener('pause', () => { if (dateShown && wantMusic && !document.hidden) setTimeout(maybePlay, 300); });
 bgm.addEventListener('ended', () => { try { bgm.currentTime = 0; } catch(_){} maybePlay(); });   // in case a browser ignores loop
-document.addEventListener('pointerdown', () => maybePlay(), {passive:true});                       // any touch is a fresh permission to play
+// iPhone Safari only counts a finished tap (touchend / click) as permission to play, so listen for all of them: any tap or scratch gets the music going again
+['pointerup','touchend','click','keydown'].forEach(ev => document.addEventListener(ev, () => maybePlay(), {passive:true}));
 setBtn(false);
 
 /* ---------- 3. final card settles in once, when it arrives ---------- */
