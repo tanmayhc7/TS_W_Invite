@@ -336,9 +336,21 @@ let started = false, dragging = false, moved = false, videoKicked = false, sx = 
 function kickVideo(){
   if (videoKicked) return; videoKicked = true;
   try { vid.currentTime = 0; } catch(_){}
-  const p = vid.play();
-  if (p && p.catch) p.catch(() => { setTimeout(showScratch, 900); }); // autoplay blocked: don't dead-end
+  tryPlay();
+  // iOS (Low Power Mode, data saver) can refuse play() outside a tap: retry on every gesture end, and only give up on the video if it never moves
+  ['pointerup','touchend','click'].forEach(ev => window.addEventListener(ev, tryPlay, { passive: true }));
+  clearTimeout(giveUp);
+  giveUp = setTimeout(() => { if (vid.currentTime < 0.15 && !vid.ended) showScratch(); }, 3500);
 }
+let giveUp = 0;
+function tryPlay(){
+  if (!started && !videoKicked) return;
+  if (vid.ended || (!vid.paused && vid.currentTime > 0)) return;
+  const p = vid.play();
+  if (p && p.catch) p.catch(err => { if (window.__vlog) window.__vlog('video play() rejected: ' + (err && err.name)); });
+}
+// if the system pauses it mid-flight (audio session change, etc.), carry on
+vid.addEventListener('pause', () => { if (started && !vid.ended && !scratchShown) setTimeout(tryPlay, 60); });
 function finishIntro(){
   if (started) return; started = true;
   kickVideo();
@@ -742,7 +754,8 @@ if (/[?&#]debug/.test(location.href)) {
   const state = () => 'paused=' + bgm.paused + ' t=' + bgm.currentTime.toFixed(1) + '/' + (bgm.duration ? bgm.duration.toFixed(1) : '?') + ' ready=' + bgm.readyState + ' net=' + bgm.networkState + (bgm.error ? ' ERR' + bgm.error.code : '') + ' hid=' + document.hidden + ' lock=' + locked() + ' y=' + Math.round(scrollY);
   const draw = () => { box.textContent = state() + '\n' + lines.join('\n'); };
   ['play','playing','pause','ended','stalled','waiting','suspend','error','emptied','abort','seeking'].forEach(e => bgm.addEventListener(e, () => log('audio ' + e)));
-  ['play','ended'].forEach(e => vid.addEventListener(e, () => log('video ' + e)));
+  ['play','playing','pause','ended','stalled','waiting','error','suspend'].forEach(e => vid.addEventListener(e, () => log('video ' + e + ' t=' + vid.currentTime.toFixed(1))));
+  window.__vlog = log;
   document.addEventListener('visibilitychange', () => log('visibility ' + document.visibilityState));
   window.addEventListener('pagehide', () => log('pagehide')); window.addEventListener('pageshow', () => log('pageshow'));
   const origPause = bgm.pause.bind(bgm);
