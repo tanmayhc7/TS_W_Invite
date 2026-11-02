@@ -99,6 +99,17 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 /* after the video ends, the scratch layer fades in over its last frame: same page, nothing to scroll to */
 /* fills the screen exactly like the intro and scratch backgrounds, so the three hand-offs line up */
 #introVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:var(--sky)}
+/* a few distant birds follow the dove across the sky, spread out in height and time */
+.flock{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.bird{position:absolute;left:-12%;top:var(--y);width:var(--s);opacity:0;will-change:transform,opacity;color:var(--c,#68707c)}
+.bird svg{display:block;width:100%;height:auto;fill:currentColor}
+.bird .dn{position:absolute;left:0;top:0;opacity:0}
+.flock.fly .bird{animation:birdFly var(--dur) linear var(--dl) both}
+.flock.fly .bird .up{animation:flapUp var(--fl) steps(1,end) infinite}
+.flock.fly .bird .dn{animation:flapDn var(--fl) steps(1,end) infinite}
+@keyframes birdFly{0%{transform:translate(0,0);opacity:0}8%{opacity:var(--o)}86%{opacity:var(--o)}100%{transform:translate(calc(var(--w,400px)*1.3),var(--dy));opacity:0}}
+@keyframes flapUp{0%{opacity:1}50%{opacity:0}}
+@keyframes flapDn{0%{opacity:0}50%{opacity:1}}
 .v-replay{position:absolute;top:calc(14px + var(--safe-top));right:14px;z-index:4;width:44px;height:44px;border-radius:50%;
   background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
   border:1px solid rgba(95,111,63,.22);color:var(--sage-deep);cursor:pointer;
@@ -231,6 +242,7 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
       <source src="assets/opening-video.mp4" type="video/mp4">
       <source src="assets/opening-video.webm" type="video/webm">
     </video>
+    <div class="flock" id="flock" aria-hidden="true"></div>
     <!-- 2. SCRATCH: fades in over the video's last frame -->
     <div class="scratch-layer" id="scratch-layer" aria-hidden="true" inert>
       <canvas class="mini m1 sa" data-shape="a" aria-hidden="true"></canvas>
@@ -369,10 +381,29 @@ function hideScratch(){
   scratchLayer.classList.remove('ready'); scratchLayer.setAttribute('aria-hidden','true'); scratchLayer.inert = true;
 }
 vid.addEventListener('ended', () => {
-  try { vid.pause(); vid.currentTime = Math.max(0, vid.duration - .05); } catch(_){}
+  try { vid.pause(); } catch(_){}                       // an ended video keeps showing its last frame; don't seek (that snapped it back to the first frame)
   setTimeout(showScratch, 180);                         // let the last frame breathe, then the clouds drift in
 });
+const flock = $('flock');
+const UP = '<svg class="up" viewBox="0 0 40 20"><path d="M1 3C9 3 15 8 20 14 25 8 31 3 39 3 32 9 26 14 20 18 14 14 8 9 1 3Z"/></svg>';
+const DN = '<svg class="dn" viewBox="0 0 40 20"><path d="M1 15C9 11 15 9 20 11 25 9 31 11 39 15 31 13 26 14 20 16 14 14 9 13 1 15Z"/></svg>';
+// [top %, width px, delay s, duration s, rise px, opacity, flap s, colour]
+[[62,22,.5,6.2,-90,.8,.55,'#5d6572'],[48,17,.95,6.6,-70,.65,.5,'#7b8390'],[71,15,1.3,6.4,-110,.55,.45,'#8a919c'],
+ [38,24,1.75,6.0,-50,.8,.6,'#59616e'],[56,13,2.2,5.6,-60,.5,.42,'#8f96a1'],[30,18,2.6,5.2,-34,.62,.52,'#6b7380']].forEach(b => {
+  const el = document.createElement('div'); el.className = 'bird'; el.innerHTML = UP + DN;
+  const st = el.style;
+  st.setProperty('--y', b[0] + '%'); st.setProperty('--s', b[1] + 'px'); st.setProperty('--dl', b[2] + 's');
+  st.setProperty('--dur', b[3] + 's'); st.setProperty('--dy', b[4] + 'px'); st.setProperty('--o', b[5]);
+  st.setProperty('--fl', b[6] + 's'); st.setProperty('--c', b[7]);
+  flock.appendChild(el);
+});
+function flyFlock(){
+  flock.style.setProperty('--w', ($('vid-screen').clientWidth || 400) + 'px');
+  flock.classList.remove('fly'); void flock.offsetWidth; flock.classList.add('fly');   // restart on replay
+}
+vid.addEventListener('ended', () => flock.classList.remove('fly'));
 vid.addEventListener('play', () => {
+  flyFlock();
   clearTimeout(safetyTimer);
   safetyTimer = setTimeout(() => { if (started) showScratch(); }, ((vid.duration || 7) * 1000) + 500);
 });
