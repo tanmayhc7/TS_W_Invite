@@ -665,7 +665,7 @@ document.querySelectorAll('.petals').forEach((box, bi) => {
 /* ---------- background music: eases in as the dove starts to fly, keeps playing, mute button on the corner ---------- */
 const bgm = $('bgm'), soundBtn = $('soundBtn');
 const MUSIC_VOL = .55;
-let wantMusic = true, inZone = false, dateShown = false, fadeId = 0;
+let wantMusic = true, dateShown = false, fadeId = 0;
 function setBtn(on){
   soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
   soundBtn.setAttribute('aria-label', on ? 'Mute music' : 'Play music');
@@ -691,26 +691,25 @@ function fade(to, ms, done){
 function playMusic(){
   try { bgm.volume = 0; } catch(_) {}
   const p = bgm.play();
-  const ok = () => { if (!inZone) { bgm.pause(); setBtn(false); return; } setBtn(true); fade(MUSIC_VOL, 3000); };   // scrolled back to the start before play() resolved
+  const ok = () => { setBtn(true); fade(MUSIC_VOL, 3000); };
   if (p && p.then) p.then(ok).catch(() => setBtn(false)); else ok();   // blocked: button shows "Play music"
 }
 function stopMusic(){ fade(0, 700, () => bgm.pause()); }
 soundBtn.addEventListener('click', () => {
   if (bgm.paused){ wantMusic = true; playMusic(); } else { wantMusic = false; setBtn(false); stopMusic(); }
 });
-function maybePlay(){ if (dateShown && inZone && wantMusic && bgm.paused) playMusic(); }
-const seen = new Map();                                            // music lives with the scratch + final screens, not the video
-const __io = new IntersectionObserver(es => {
-  es.forEach(en => seen.set(en.target, en.intersectionRatio));
-  inZone = [...seen.values()].some(r => r >= .25);
-  if (inZone) maybePlay(); else if (!bgm.paused) { setBtn(false); stopMusic(); }
-}, {threshold: [0, .25, .5, .75, 1]});
-__io.observe(scratchScreen); __io.observe(finalScreen);
+/* once it has started, the music plays on every screen until someone mutes it or leaves the tab */
+function maybePlay(){ if (dateShown && wantMusic && bgm.paused && !document.hidden) playMusic(); }
 window.__music = {show(){ dateShown = true; root.classList.add('music-ready'); maybePlay(); }};
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && !bgm.paused) { bgm.pause(); setBtn(false); }
   else if (!document.hidden) maybePlay();
 });
+// if something outside our control stops it (a phone interruption, a browser quirk), pick it back up
+bgm.addEventListener('pause', () => { if (dateShown && wantMusic && !document.hidden) setTimeout(maybePlay, 300); });
+bgm.addEventListener('ended', () => { try { bgm.currentTime = 0; } catch(_){} maybePlay(); });   // in case a browser ignores loop
+// iPhone Safari only counts a finished tap (touchend / click) as permission to play, so listen for all of them: any tap or scratch gets the music going again
+['pointerup','touchend','click','keydown'].forEach(ev => document.addEventListener(ev, () => maybePlay(), {passive:true}));
 setBtn(false);
 
 /* ---------- 3. final card settles in once, when it arrives ---------- */
