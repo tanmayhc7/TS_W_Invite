@@ -79,6 +79,8 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
 .intro-inner{position:absolute;top:calc(14vh + var(--safe-top));left:0;right:0;text-align:center;padding:0 24px}
 .std{font-weight:600;letter-spacing:.22em;text-indent:.22em;font-size:clamp(1.55rem,7.4vw,2.4rem);
   color:var(--sage-deep);line-height:1.2;text-wrap:balance}
+.tap-mode .arrow-right{display:none}
+.tap-mode #intro-screen{cursor:pointer}
 .swipe-line{font-style:italic;font-weight:600;color:var(--ink);font-size:1.4rem;margin-top:.5em}
 .arrow-right{margin:1.1em auto 0;width:112px;height:20px;animation:arrowSlide 2.2s var(--ease-soft) infinite}
 .arrow-right svg{width:100%;height:100%;display:block;overflow:visible}
@@ -226,7 +228,7 @@ html.is-locked #final-screen{display:none}
            aria-label="Save the date. Swipe right, or press Enter, to begin.">
     <div class="intro-inner" id="introInner">
       <div class="std">SAVE&nbsp;THE&nbsp;DATE</div>
-      <div class="swipe-line">swipe right to begin</div>
+      <div class="swipe-line" id="swipeLine">swipe right to begin</div>
       <div class="arrow-right" aria-hidden="true">
         <svg viewBox="0 0 104 22" xmlns="http://www.w3.org/2000/svg">
           <line x1="2" y1="11" x2="94" y2="11" stroke="#4c5a31" stroke-width="1.4" stroke-linecap="round"/>
@@ -336,9 +338,44 @@ let started = false, dragging = false, moved = false, videoKicked = false, sx = 
 function kickVideo(){
   if (videoKicked) return; videoKicked = true;
   try { vid.currentTime = 0; } catch(_){}
-  const p = vid.play();
-  if (p && p.catch) p.catch(() => { setTimeout(showScratch, 900); }); // autoplay blocked: don't dead-end
+  tryPlay();
+  // iOS (Low Power Mode, data saver) can refuse play() outside a tap: retry on every gesture end, and only give up on the video if it never moves
+  ['pointerup','touchend','click'].forEach(ev => window.addEventListener(ev, tryPlay, { passive: true }));
+  clearTimeout(giveUp);
+  giveUp = setTimeout(() => { if (vid.currentTime < 0.15 && !vid.ended) showScratch(); }, 3500);
 }
+let giveUp = 0;
+function tryPlay(){
+  if (!started && !videoKicked) return;
+  if (vid.ended || (!vid.paused && vid.currentTime > 0)) return;
+  const p = vid.play();
+  if (p && p.catch) p.catch(err => { if (window.__vlog) window.__vlog('video play() rejected: ' + (err && err.name)); });
+}
+// if the system pauses it mid-flight (audio session change, etc.), carry on
+// Does this phone allow video autoplay? (iPhone Low Power Mode / data saver say no.) If not, switch the first screen to "tap to begin",
+// because a real tap is the one thing iOS always lets start a video. ?mode=tap or ?mode=swipe forces either.
+let tapMode = false;
+function setTapMode(){
+  if (tapMode) return; tapMode = true;
+  document.documentElement.classList.add('tap-mode');
+  $('swipeLine').textContent = 'tap to begin';
+  intro.setAttribute('aria-label', 'Save the date. Tap, or press Enter, to begin.');
+}
+(function probeAutoplay(){
+  const forced = (location.search.match(/[?&]mode=(tap|swipe)/) || [])[1];
+  if (forced === 'tap') { setTapMode(); return; }
+  if (forced === 'swipe') return;
+  let done = false;
+  const decide = tap => { if (done) return; done = true; if (tap) setTapMode(); };
+  setTimeout(() => decide(false), 1000);                         // no clear answer: stay with swipe
+  try {
+    vid.muted = true;
+    const p = vid.play();
+    if (p && p.then) p.then(() => { if (!started) { try { vid.pause(); vid.currentTime = 0; } catch(_){} } decide(false); },
+                            err => { if (window.__vlog) window.__vlog('autoplay probe rejected: ' + (err && err.name)); decide(true); });
+  } catch(_){ }
+})();
+vid.addEventListener('pause', () => { if (started && !vid.ended && !scratchShown) setTimeout(tryPlay, 60); });
 function finishIntro(){
   if (started) return; started = true;
   kickVideo();
@@ -351,7 +388,7 @@ function finishIntro(){
   setTimeout(() => { intro.style.display = 'none'; }, 720);
 }
 intro.addEventListener('pointerdown', e => {
-  if (started) return;
+  if (started || tapMode) return;
   dragging = true; moved = false; sx = lastX = e.clientX; sy = e.clientY; lastT = e.timeStamp; vel = 0;
   intro.classList.remove('snapback'); intro.setPointerCapture(e.pointerId);
 });
@@ -377,6 +414,7 @@ function endDrag(){
   try { vid.pause(); vid.currentTime = 0; } catch(_){}; videoKicked = false;
 }
 intro.addEventListener('pointerup', endDrag);
+intro.addEventListener('click', () => { if (tapMode) finishIntro(); });   // tap mode: the click itself is the permission slip for the video
 intro.addEventListener('pointercancel', endDrag);
 intro.addEventListener('keydown', e => {
   if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight'){ e.preventDefault(); finishIntro(); }
@@ -415,6 +453,7 @@ function flyFlock(){
 }
 vid.addEventListener('ended', () => flock.classList.remove('fly'));
 vid.addEventListener('play', () => {
+  if (!started) return;                                          // the autoplay probe isn't the real thing
   flyFlock();
   clearTimeout(safetyTimer);
   safetyTimer = setTimeout(() => { if (started) showScratch(); }, ((vid.duration || 7) * 1000) + 500);
@@ -742,7 +781,8 @@ if (/[?&#]debug/.test(location.href)) {
   const state = () => 'paused=' + bgm.paused + ' t=' + bgm.currentTime.toFixed(1) + '/' + (bgm.duration ? bgm.duration.toFixed(1) : '?') + ' ready=' + bgm.readyState + ' net=' + bgm.networkState + (bgm.error ? ' ERR' + bgm.error.code : '') + ' hid=' + document.hidden + ' lock=' + locked() + ' y=' + Math.round(scrollY);
   const draw = () => { box.textContent = state() + '\n' + lines.join('\n'); };
   ['play','playing','pause','ended','stalled','waiting','suspend','error','emptied','abort','seeking'].forEach(e => bgm.addEventListener(e, () => log('audio ' + e)));
-  ['play','ended'].forEach(e => vid.addEventListener(e, () => log('video ' + e)));
+  ['play','playing','pause','ended','stalled','waiting','error','suspend'].forEach(e => vid.addEventListener(e, () => log('video ' + e + ' t=' + vid.currentTime.toFixed(1))));
+  window.__vlog = log;
   document.addEventListener('visibilitychange', () => log('visibility ' + document.visibilityState));
   window.addEventListener('pagehide', () => log('pagehide')); window.addEventListener('pageshow', () => log('pageshow'));
   const origPause = bgm.pause.bind(bgm);
