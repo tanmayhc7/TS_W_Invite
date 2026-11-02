@@ -271,7 +271,7 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
       <svg class="i-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>
   </button>
 
-  <audio id="bgm" controlslist="nodownload" loop preload="none" src="../assets/background-music.mp3"></audio>
+  <audio id="bgm" controlslist="nodownload" loop preload="none" src="../assets/background-music.mp3?v=2"></audio>
 
 </div>
 
@@ -318,7 +318,7 @@ function kickVideo(){
 function finishIntro(){
   if (started) return; started = true;
   kickVideo();
-  unlockAudio();                                  // this tap is the permission slip for music later
+  unlockAudio().then(() => { if (window.__music) window.__music.show(); });   // this tap is the permission slip; the music comes in with the dove
   intro.classList.remove('snapback'); intro.classList.add('sliding');
   intro.style.transform = 'translateX(105%)'; intro.style.opacity = '0';
   stage.classList.add('begun');
@@ -631,7 +631,7 @@ document.querySelectorAll('.petals').forEach((box, bi) => {
   }
 });
 
-/* ---------- background music: plays only on the final card ---------- */
+/* ---------- background music: eases in as the dove starts to fly, keeps playing, mute button on the corner ---------- */
 const bgm = $('bgm'), soundBtn = $('soundBtn');
 const MUSIC_VOL = .55;
 let wantMusic = true, inZone = false, dateShown = false, fadeId = 0;
@@ -640,11 +640,13 @@ function setBtn(on){
   soundBtn.setAttribute('aria-label', on ? 'Mute music' : 'Play music');
 }
 function unlockAudio(){                                          // iOS only lets later code play() if a tap touched the element first
-  try {
-    bgm.muted = true; const p = bgm.play();
-    if (p && p.then) p.then(() => { bgm.pause(); bgm.currentTime = 0; bgm.muted = false; }).catch(() => { bgm.muted = false; });
-    else bgm.muted = false;
-  } catch(_) { bgm.muted = false; }
+  return new Promise(done => {
+    try {
+      bgm.muted = true; const p = bgm.play();
+      if (p && p.then) p.then(() => { bgm.pause(); bgm.currentTime = 0; bgm.muted = false; done(); }).catch(() => { bgm.muted = false; done(); });
+      else { bgm.muted = false; done(); }
+    } catch(_) { bgm.muted = false; done(); }
+  });
 }
 function fade(to, ms, done){
   const id = ++fadeId, from = bgm.volume, t0 = performance.now();
