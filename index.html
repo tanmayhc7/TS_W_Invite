@@ -720,6 +720,33 @@ bgm.addEventListener('pause', () => { if (dateShown && wantMusic && !document.hi
 bgm.addEventListener('ended', () => { try { bgm.currentTime = 0; } catch(_){} maybePlay(); });   // in case a browser ignores loop
 // iPhone Safari only counts a finished tap (touchend / click) as permission to play, so listen for all of them: any tap or scratch gets the music going again
 ['pointerup','touchend','click','keydown'].forEach(ev => document.addEventListener(ev, () => maybePlay(), {passive:true}));
+// belt and braces for the loop: some phones let the track run out instead of looping, so wrap it by hand just before the end
+setInterval(() => {
+  const d = bgm.duration;
+  if (!bgm.paused && d && isFinite(d) && bgm.currentTime > d - .3) { try { bgm.currentTime = 0.02; } catch(_){} }
+}, 100);
+// and if it ever sits paused when it should be playing, keep trying (a phone may refuse until the next tap, which the listeners above catch)
+setInterval(() => { if (dateShown && wantMusic && bgm.paused && !document.hidden) maybePlay(); }, 1500);
+
+/* ---------- ?debug : a small on-screen log, to see what a phone does to the music ---------- */
+if (/[?&#]debug/.test(location.href)) {
+  const box = document.createElement('pre');
+  box.style.cssText = 'position:fixed;left:6px;top:6px;right:6px;z-index:9999;margin:0;padding:6px 8px;border-radius:8px;background:rgba(0,0,0,.72);color:#9f9;font:10px/1.35 ui-monospace,Menlo,monospace;pointer-events:none;white-space:pre-wrap;max-height:46vh;overflow:hidden';
+  document.body.appendChild(box);
+  const lines = [], t0 = performance.now();
+  const log = m => { lines.push(((performance.now() - t0) / 1000).toFixed(1) + 's ' + m); if (lines.length > 14) lines.shift(); draw(); };
+  const state = () => 'paused=' + bgm.paused + ' t=' + bgm.currentTime.toFixed(1) + '/' + (bgm.duration ? bgm.duration.toFixed(1) : '?') + ' ready=' + bgm.readyState + ' net=' + bgm.networkState + (bgm.error ? ' ERR' + bgm.error.code : '') + ' hid=' + document.hidden + ' lock=' + locked() + ' y=' + Math.round(scrollY);
+  const draw = () => { box.textContent = state() + '\n' + lines.join('\n'); };
+  ['play','playing','pause','ended','stalled','waiting','suspend','error','emptied','abort','seeking'].forEach(e => bgm.addEventListener(e, () => log('audio ' + e)));
+  ['play','ended'].forEach(e => vid.addEventListener(e, () => log('video ' + e)));
+  document.addEventListener('visibilitychange', () => log('visibility ' + document.visibilityState));
+  window.addEventListener('pagehide', () => log('pagehide')); window.addEventListener('pageshow', () => log('pageshow'));
+  const origPause = bgm.pause.bind(bgm);
+  bgm.pause = function(){ log('script pause() from ' + (new Error().stack.split('\n')[1] || '?').trim().slice(0, 60)); return origPause(); };
+  const origShow = window.__music.show; window.__music.show = function(){ log('music.show()'); return origShow(); };
+  new MutationObserver(() => log('html class: ' + root.className)).observe(root, {attributes:true, attributeFilter:['class']});
+  setInterval(draw, 500); log('debug on');
+}
 setBtn(false);
 
 /* ---------- 3. final card settles in once, when it arrives ---------- */
