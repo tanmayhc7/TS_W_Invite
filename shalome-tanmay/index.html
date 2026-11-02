@@ -285,7 +285,10 @@ html.is-locked #final-screen{display:none}
       <svg class="i-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>
   </button>
 
-  <audio id="bgm" controlslist="nodownload" loop preload="none" src="../assets/background-music.mp3?v=3"></audio>
+  <audio id="bgm" controlslist="nodownload" loop preload="auto">
+    <source src="../assets/background-music.m4a?v=4" type="audio/mp4">
+    <source src="../assets/background-music.mp3?v=4" type="audio/mpeg">
+  </audio>
 
 </div>
 
@@ -723,7 +726,8 @@ bgm.addEventListener('ended', () => { try { bgm.currentTime = 0; } catch(_){} ma
 // belt and braces for the loop: some phones let the track run out instead of looping, so wrap it by hand just before the end
 setInterval(() => {
   const d = bgm.duration;
-  if (!bgm.paused && d && isFinite(d) && bgm.currentTime > d - .3) { try { bgm.currentTime = 0.02; } catch(_){} }
+  if (!bgm.paused && d > 5 && isFinite(d) && bgm.currentTime > 1 && bgm.currentTime > d - .3)   /* d > 5: ignore the tiny placeholder length some phones report before the file has loaded */
+    { try { bgm.currentTime = 0.02; } catch(_){} }
 }, 100);
 // and if it ever sits paused when it should be playing, keep trying (a phone may refuse until the next tap, which the listeners above catch)
 setInterval(() => { if (dateShown && wantMusic && bgm.paused && !document.hidden) maybePlay(); }, 1500);
