@@ -54,7 +54,7 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--sky-soft);scrollbar-width:thin;scrollbar-color:rgba(76,90,49,.35) transparent}
 html,body{overflow-x:hidden}
-html.is-locked,html.is-locked body{overflow:hidden;height:100%;overscroll-behavior:none}
+html.is-locked,html.is-locked body{overflow:hidden;height:100%;overscroll-behavior:none;touch-action:none}
 body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
   background:linear-gradient(180deg,#dde7f1 0%,#e9eef0 55%,var(--paper) 100%) fixed;overscroll-behavior-y:none}
 ::selection{background:rgba(95,111,63,.28);color:inherit}
@@ -188,6 +188,8 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
    3. FINAL — the invitation card, full bleed
    ========================================================= */
 #final-screen{background:#eef3f8}
+/* the card does not exist on the page until the cloud is scratched away, so there is nothing to scroll to on any device */
+html.is-locked #final-screen{display:none}
 /* slightly oversized so the card's own cream border sits just off-screen */
 .final-art{position:absolute;inset:-2.9% -3.6%;background:#eef3f8 url(../assets/card.jpg) center/cover no-repeat;
   transition:transform 2.2s var(--ease-out),filter 2.2s var(--ease-out)}
@@ -211,7 +213,7 @@ body{font-family:var(--serif);color:var(--ink);-webkit-font-smoothing:antialiase
   .js .final-art:not(.in){transform:none;filter:none}
 }
 </style>
-<noscript><style>#intro-screen,#vid-screen{display:none}.js .final-art{transform:none}html.is-locked,html.is-locked body{overflow:auto;height:auto}</style></noscript>
+<noscript><style>#intro-screen,#vid-screen{display:none}.js .final-art{transform:none}html.is-locked,html.is-locked body{overflow:auto;height:auto}html.is-locked #final-screen{display:block}</style></noscript>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -319,6 +321,13 @@ const stopGlide = () => { glideId++; gliding = false; };
 ['wheel','touchstart','keydown'].forEach(ev =>
   window.addEventListener(ev, () => { if (gliding) stopGlide(); }, {passive:true}));
 
+/* ---------- scroll lock: nothing scrolls until the cloud is scratched (iPhone ignores overflow:hidden, so block the gestures too) ---------- */
+const locked = () => root.classList.contains('is-locked');
+['touchmove','wheel'].forEach(ev => document.addEventListener(ev, e => { if (locked()) e.preventDefault(); }, {passive:false}));
+document.addEventListener('keydown', e => {
+  if (locked() && /^(ArrowDown|ArrowUp|PageDown|PageUp|End|Home| |Spacebar)$/.test(e.key) && (e.target === document.body || e.target === document.documentElement)) e.preventDefault();
+});
+
 /* ---------- 0. intro: swipe right (or tap / Enter) to begin ---------- */
 let started = false, dragging = false, moved = false, videoKicked = false, sx = 0, sy = 0, lastX = 0, lastT = 0, vel = 0;
 function kickVideo(){
@@ -334,7 +343,7 @@ function finishIntro(){
   intro.classList.remove('snapback'); intro.classList.add('sliding');
   intro.style.transform = 'translateX(105%)'; intro.style.opacity = '0';
   stage.classList.add('begun');
-  root.classList.remove('is-locked');
+  // the page stays locked through the video and the scratch screen; the cloud being scratched away unlocks it
   intro.setAttribute('aria-hidden','true'); intro.tabIndex = -1;
   setTimeout(() => { intro.style.display = 'none'; }, 720);
 }
@@ -556,6 +565,7 @@ function progress(){
 function reveal(){
   if (cleared) return; cleared = true;
   wrap.classList.add('revealed');
+  root.classList.remove('is-locked');                              // the date is out: the card below is free to scroll to
   if (window.__music) window.__music.show();                       // the date is on screen: start easing the music in
   canvas.style.transition = 'opacity .8s var(--ease-soft)'; canvas.style.opacity = '0'; canvas.style.pointerEvents = 'none';
   setTimeout(() => { canvas.style.display = 'none'; }, 820);
